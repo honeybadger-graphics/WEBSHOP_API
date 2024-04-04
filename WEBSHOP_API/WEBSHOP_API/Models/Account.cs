@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using ServiceStack.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace WEBSHOP_API.Models
 {
@@ -6,8 +7,9 @@ namespace WEBSHOP_API.Models
     {
         [JsonIgnore]
         public int AccountId { get; set; }
-       
+        [JsonIgnore]
         public string? AccountName { get; set; }
+       
         public string? AccountPassword { get; set; }
         public string? AccountEmail { get; set; }
         [JsonIgnore]

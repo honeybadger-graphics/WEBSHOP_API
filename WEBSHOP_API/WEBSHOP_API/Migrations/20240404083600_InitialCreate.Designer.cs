@@ -11,8 +11,8 @@ using WEBSHOP_API.Models;
 namespace WEBSHOP_API.Migrations
 {
     [DbContext(typeof(WebshopDbContext))]
-    [Migration("20240402073619_iniCreate")]
-    partial class iniCreate
+    [Migration("20240404083600_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -35,7 +35,7 @@ namespace WEBSHOP_API.Migrations
                     b.Property<string>("AccountPassword")
                         .HasColumnType("TEXT");
 
-                    b.Property<int?>("CartId")
+                    b.Property<int>("CartId")
                         .HasColumnType("INTEGER");
 
                     b.Property<bool>("IsAdmin")
@@ -132,7 +132,9 @@ namespace WEBSHOP_API.Migrations
                 {
                     b.HasOne("WEBSHOP_API.Models.Cart", "Cart")
                         .WithMany()
-                        .HasForeignKey("CartId");
+                        .HasForeignKey("CartId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Cart");
                 });

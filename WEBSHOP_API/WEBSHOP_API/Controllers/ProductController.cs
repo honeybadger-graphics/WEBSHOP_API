@@ -64,8 +64,8 @@ public class ProductController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<Product>> PostProduct(PostAccuntProductModel postAccuntProductModel)
     {
-        Product product = postAccuntProductModel.product;
-        Account account = postAccuntProductModel.account;
+        Product product = postAccuntProductModel.Product;
+        Account account = postAccuntProductModel.Account;
         if (account.IsAdmin) {
             _context.Products.Add(product);
             await _context.SaveChangesAsync();
@@ -81,60 +81,43 @@ public class ProductController : ControllerBase
 
     }
     [HttpPost]
-    public async Task<ActionResult<Product>> UpdateProduct(Product product)
+    public async Task<ActionResult<Product>> UpdateProduct(PostAccuntProductModel postAccuntProduct)
     {
-        if (product.ProductName != null && ProductExists(product.ProductName))
+        var account = _context.Accounts.First(a => a.AccountName == postAccuntProduct.Account.AccountName);
+        if (account.IsAdmin)
         {
-            _context.Entry(product).State = EntityState.Modified;
-            try
+            if (postAccuntProduct.Product.ProductName != null && ProductExists(postAccuntProduct.Product.ProductName))
             {
-                await _context.SaveChangesAsync();
+                var existingProduct = _context.Products.First(p => p.ProductName == postAccuntProduct.Product.ProductName);
+                try
+                {
+                    existingProduct.ProductPrice = postAccuntProduct.Product.ProductPrice;
+                    existingProduct.ProductBasePrice = postAccuntProduct.Product.ProductBasePrice;
+                    existingProduct.IsProductOnSale = postAccuntProduct.Product.IsProductOnSale;
+                    existingProduct.IsProductPromoted = postAccuntProduct.Product.IsProductPromoted;
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+
+                    throw;
+
+                }
+                return postAccuntProduct.Product;
             }
-            catch (DbUpdateConcurrencyException)
+            else
             {
-
-                throw;
-
+                return NotFound();
             }
-            return product;
         }
         else
         {
-            return NotFound();
+            return BadRequest();
         }
 
+
+
     }
-    //same problem as in account, should delete this crap
-    //// PUT: api/Product/5
-    //[HttpPut("{id}")]
-    //public async Task<IActionResult> PutProduct(int id, Product product)
-    //{
-    //    if (id != product.ProductId)
-    //    {
-    //        return BadRequest();
-    //    }
-
-    //    _context.Entry(product).State = EntityState.Modified;
-
-    //    try
-    //    {
-    //        await _context.SaveChangesAsync();
-    //    }
-    //    catch (DbUpdateConcurrencyException)
-    //    {
-    //        if (!ProductExists(id))
-    //        {
-    //            return NotFound();
-    //        }
-    //        else
-    //        {
-    //            throw;
-    //        }
-    //    }
-
-    //    return NoContent();
-    //}
-
     // DELETE: api/Product/5
     [HttpDelete("{name}")]
     public async Task<IActionResult> DeleteProduct(string name)
@@ -151,10 +134,6 @@ public class ProductController : ControllerBase
         return NoContent();
     }
 
-    private bool ProductExists(int id)
-    {
-        return _context.Products.Any(e => e.ProductId == id);
-    }
     private bool ProductExists(string name)
     {
         return _context.Products.Any(e => e.ProductName == name);

@@ -8,6 +8,6 @@ namespace WEBSHOP_API.Models
 
         [JsonIgnore]
         public int CartId { get; set; }
-        public Product[]? Products { get; set; }
+        public List<Product>? Products { get; set; }
     }
 }

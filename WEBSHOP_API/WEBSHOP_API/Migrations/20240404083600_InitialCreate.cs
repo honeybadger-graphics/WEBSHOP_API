@@ -5,7 +5,7 @@
 namespace WEBSHOP_API.Migrations
 {
     /// <inheritdoc />
-    public partial class iniCreate : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -15,11 +15,18 @@ namespace WEBSHOP_API.Migrations
                 columns: table => new
                 {
                     CartId = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    ProductId = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Carts", x => x.CartId);
+                    table.ForeignKey(
+                        name: "FK_Carts_Products_ProductId",
+                        column: x => x.CartId,
+                        principalTable: "Products",
+                        principalColumn: "ProductId",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -57,7 +64,8 @@ namespace WEBSHOP_API.Migrations
                         name: "FK_Accounts_Carts_CartId",
                         column: x => x.CartId,
                         principalTable: "Carts",
-                        principalColumn: "CartId");
+                        principalColumn: "CartId",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -75,17 +83,11 @@ namespace WEBSHOP_API.Migrations
                     ProductPrice = table.Column<int>(type: "INTEGER", nullable: false),
                     ProductBasePrice = table.Column<int>(type: "INTEGER", nullable: false),
                     IsProductPromoted = table.Column<bool>(type: "INTEGER", nullable: false),
-                    IsProductOnSale = table.Column<bool>(type: "INTEGER", nullable: false),
-                    CartId = table.Column<int>(type: "INTEGER", nullable: true)
+                    IsProductOnSale = table.Column<bool>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Products", x => x.ProductId);
-                    table.ForeignKey(
-                        name: "FK_Products_Carts_CartId",
-                        column: x => x.CartId,
-                        principalTable: "Carts",
-                        principalColumn: "CartId");
                 });
 
             migrationBuilder.CreateIndex(
@@ -94,9 +96,9 @@ namespace WEBSHOP_API.Migrations
                 column: "CartId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Products_CartId",
-                table: "Products",
-                column: "CartId");
+                name: "IX_Carts_ProductId",
+                table: "Carts",
+                column: "ProductId");
         }
 
         /// <inheritdoc />

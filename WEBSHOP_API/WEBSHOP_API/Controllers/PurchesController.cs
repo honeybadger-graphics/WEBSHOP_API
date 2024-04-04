@@ -4,7 +4,7 @@ using WEBSHOP_API.Models;
 
 namespace WEBSHOP_API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/[controller]/[Action]")]
     [ApiController]
     public class PurchesController : ControllerBase
     {
@@ -17,8 +17,8 @@ namespace WEBSHOP_API.Controllers
         [HttpPost]
         public async Task<ActionResult> MakePurches(PostAccuntProductModel postAccuntProductModel)
         {
-            Product product = postAccuntProductModel.product;
-            Account account = postAccuntProductModel.account;
+            Product Product = postAccuntProductModel.Product;
+            Account Account = postAccuntProductModel.Account;
             return BadRequest();
 
         }

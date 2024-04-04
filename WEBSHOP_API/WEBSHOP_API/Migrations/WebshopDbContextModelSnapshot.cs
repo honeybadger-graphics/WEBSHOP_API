@@ -32,7 +32,7 @@ namespace WEBSHOP_API.Migrations
                     b.Property<string>("AccountPassword")
                         .HasColumnType("TEXT");
 
-                    b.Property<int?>("CartId")
+                    b.Property<int>("CartId")
                         .HasColumnType("INTEGER");
 
                     b.Property<bool>("IsAdmin")
@@ -129,7 +129,9 @@ namespace WEBSHOP_API.Migrations
                 {
                     b.HasOne("WEBSHOP_API.Models.Cart", "Cart")
                         .WithMany()
-                        .HasForeignKey("CartId");
+                        .HasForeignKey("CartId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Cart");
                 });
