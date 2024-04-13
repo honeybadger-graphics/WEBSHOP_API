@@ -3,6 +3,7 @@ using WEBSHOP_API.Models;
 
 namespace WEBSHOP_API.Storage
 {
+    //rewrite this, or idk now.
     public class StorageManager 
     {
         private readonly WebshopDbContext _context;

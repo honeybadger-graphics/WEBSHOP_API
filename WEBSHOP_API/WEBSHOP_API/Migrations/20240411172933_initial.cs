@@ -5,28 +5,28 @@
 namespace WEBSHOP_API.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Carts",
+                name: "Accounts",
                 columns: table => new
                 {
-                    CartId = table.Column<int>(type: "INTEGER", nullable: false)
+                    AccountId = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    ProductId = table.Column<int>(type: "INTEGER", nullable: true)
+                    AccountNameTitles = table.Column<string>(type: "TEXT", nullable: true),
+                    AccountFirstName = table.Column<string>(type: "TEXT", nullable: true),
+                    AccountLastName = table.Column<string>(type: "TEXT", nullable: true),
+                    AccountPassword = table.Column<string>(type: "TEXT", nullable: true),
+                    AccountEmail = table.Column<string>(type: "TEXT", nullable: true),
+                    AccountAddress = table.Column<string>(type: "TEXT", nullable: true),
+                    IsAdmin = table.Column<bool>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Carts", x => x.CartId);
-                    table.ForeignKey(
-                        name: "FK_Carts_Products_ProductId",
-                        column: x => x.CartId,
-                        principalTable: "Products",
-                        principalColumn: "ProductId",
-                        onDelete: ReferentialAction.Cascade);
+                    table.PrimaryKey("PK_Accounts", x => x.AccountId);
                 });
 
             migrationBuilder.CreateTable(
@@ -46,29 +46,6 @@ namespace WEBSHOP_API.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Accounts",
-                columns: table => new
-                {
-                    AccountId = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    AccountName = table.Column<string>(type: "TEXT", nullable: true),
-                    AccountPassword = table.Column<string>(type: "TEXT", nullable: true),
-                    AccountEmail = table.Column<string>(type: "TEXT", nullable: true),
-                    IsAdmin = table.Column<bool>(type: "INTEGER", nullable: false),
-                    CartId = table.Column<int>(type: "INTEGER", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Accounts", x => x.AccountId);
-                    table.ForeignKey(
-                        name: "FK_Accounts_Carts_CartId",
-                        column: x => x.CartId,
-                        principalTable: "Carts",
-                        principalColumn: "CartId",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Products",
                 columns: table => new
                 {
@@ -83,30 +60,28 @@ namespace WEBSHOP_API.Migrations
                     ProductPrice = table.Column<int>(type: "INTEGER", nullable: false),
                     ProductBasePrice = table.Column<int>(type: "INTEGER", nullable: false),
                     IsProductPromoted = table.Column<bool>(type: "INTEGER", nullable: false),
-                    IsProductOnSale = table.Column<bool>(type: "INTEGER", nullable: false)
+                    IsProductOnSale = table.Column<bool>(type: "INTEGER", nullable: false),
+                    AccountId = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Products", x => x.ProductId);
+                    table.ForeignKey(
+                        name: "FK_Products_Accounts_AccountId",
+                        column: x => x.AccountId,
+                        principalTable: "Accounts",
+                        principalColumn: "AccountId");
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Accounts_CartId",
-                table: "Accounts",
-                column: "CartId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Carts_ProductId",
-                table: "Carts",
-                column: "ProductId");
+                name: "IX_Products_AccountId",
+                table: "Products",
+                column: "AccountId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "Accounts");
-
             migrationBuilder.DropTable(
                 name: "Logs");
 
@@ -114,7 +89,7 @@ namespace WEBSHOP_API.Migrations
                 name: "Products");
 
             migrationBuilder.DropTable(
-                name: "Carts");
+                name: "Accounts");
         }
     }
 }

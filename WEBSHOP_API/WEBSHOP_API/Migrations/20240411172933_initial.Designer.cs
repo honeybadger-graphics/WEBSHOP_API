@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WEBSHOP_API.Models;
 
@@ -10,9 +11,11 @@ using WEBSHOP_API.Models;
 namespace WEBSHOP_API.Migrations
 {
     [DbContext(typeof(WebshopDbContext))]
-    partial class WebshopDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240411172933_initial")]
+    partial class initial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.3");
@@ -69,6 +72,9 @@ namespace WEBSHOP_API.Migrations
 
                     b.Property<string>("ProductCategory")
                         .HasColumnType("TEXT");
+
+                    b.Property<int>("ProductCount")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("ProductDescription")
                         .HasColumnType("TEXT");

@@ -7,14 +7,18 @@ namespace WEBSHOP_API.Models
     {
         [JsonIgnore]
         public int AccountId { get; set; }
-        [JsonIgnore]
-        public string? AccountName { get; set; }
+        
+        public string? AccountNameTitles { get; set; }
+        
+        public string? AccountFirstName { get; set; }
        
+        public string? AccountLastName { get; set; }
         public string? AccountPassword { get; set; }
         public string? AccountEmail { get; set; }
+       
+        public string? AccountAddress { get; set; }
         [JsonIgnore]
         public bool IsAdmin { get; set; } = false;
-        [JsonIgnore]
-        public Cart? Cart { get; set; }
+        public List<Product>? Cart { get; set; }
     }
 }

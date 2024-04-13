@@ -11,8 +11,8 @@ using WEBSHOP_API.Models;
 namespace WEBSHOP_API.Migrations
 {
     [DbContext(typeof(WebshopDbContext))]
-    [Migration("20240404083600_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20240413113820_removed_ProductCount")]
+    partial class removed_ProductCount
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -26,37 +26,30 @@ namespace WEBSHOP_API.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("AccountAddress")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("AccountEmail")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("AccountName")
+                    b.Property<string>("AccountFirstName")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("AccountLastName")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("AccountNameTitles")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("AccountPassword")
                         .HasColumnType("TEXT");
-
-                    b.Property<int>("CartId")
-                        .HasColumnType("INTEGER");
 
                     b.Property<bool>("IsAdmin")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("AccountId");
 
-                    b.HasIndex("CartId");
-
                     b.ToTable("Accounts");
-                });
-
-            modelBuilder.Entity("WEBSHOP_API.Models.Cart", b =>
-                {
-                    b.Property<int>("CartId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("CartId");
-
-                    b.ToTable("Carts");
                 });
 
             modelBuilder.Entity("WEBSHOP_API.Models.Product", b =>
@@ -65,7 +58,7 @@ namespace WEBSHOP_API.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int?>("CartId")
+                    b.Property<int?>("AccountId")
                         .HasColumnType("INTEGER");
 
                     b.Property<bool>("IsProductOnSale")
@@ -79,9 +72,6 @@ namespace WEBSHOP_API.Migrations
 
                     b.Property<string>("ProductCategory")
                         .HasColumnType("TEXT");
-
-                    b.Property<int>("ProductCount")
-                        .HasColumnType("INTEGER");
 
                     b.Property<string>("ProductDescription")
                         .HasColumnType("TEXT");
@@ -100,7 +90,7 @@ namespace WEBSHOP_API.Migrations
 
                     b.HasKey("ProductId");
 
-                    b.HasIndex("CartId");
+                    b.HasIndex("AccountId");
 
                     b.ToTable("Products");
                 });
@@ -128,27 +118,16 @@ namespace WEBSHOP_API.Migrations
                     b.ToTable("Logs");
                 });
 
-            modelBuilder.Entity("WEBSHOP_API.Models.Account", b =>
-                {
-                    b.HasOne("WEBSHOP_API.Models.Cart", "Cart")
-                        .WithMany()
-                        .HasForeignKey("CartId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Cart");
-                });
-
             modelBuilder.Entity("WEBSHOP_API.Models.Product", b =>
                 {
-                    b.HasOne("WEBSHOP_API.Models.Cart", null)
-                        .WithMany("Products")
-                        .HasForeignKey("CartId");
+                    b.HasOne("WEBSHOP_API.Models.Account", null)
+                        .WithMany("Cart")
+                        .HasForeignKey("AccountId");
                 });
 
-            modelBuilder.Entity("WEBSHOP_API.Models.Cart", b =>
+            modelBuilder.Entity("WEBSHOP_API.Models.Account", b =>
                 {
-                    b.Navigation("Products");
+                    b.Navigation("Cart");
                 });
 #pragma warning restore 612, 618
         }

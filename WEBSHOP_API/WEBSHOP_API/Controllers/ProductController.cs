@@ -7,6 +7,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
+using System.Text;
 using WEBSHOP_API.Models;
 
 
@@ -27,22 +28,22 @@ public class ProductController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Product>>> GetProducts(int page, int numberOFProductsToDispaly)
     {
-        return await _context.Products.Skip(numberOFProductsToDispaly * page).Take(numberOFProductsToDispaly).ToListAsync();
+        return await _context.Products.OrderBy(p=>p.ProductId).Skip(numberOFProductsToDispaly * page).Take(numberOFProductsToDispaly).ToListAsync();
     }
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Product>>> GetProductsByCategory(string category, int page, int numberOFProductsToDispaly)
     {
-        return await _context.Products.Where(p=>p.ProductCategory == category).Skip(numberOFProductsToDispaly * page).Take(numberOFProductsToDispaly).ToListAsync();
+        return await _context.Products.Where(p=>p.ProductCategory == category).OrderBy(p => p.ProductId).Skip(numberOFProductsToDispaly * page).Take(numberOFProductsToDispaly).ToListAsync();
     }
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Product>>> GetProductsIfOnSale(int page, int numberOFProductsToDispaly)
     {
-        return await _context.Products.Where(p => p.IsProductOnSale == true).Skip(numberOFProductsToDispaly * page).Take(numberOFProductsToDispaly).ToListAsync();
+        return await _context.Products.Where(p => p.IsProductOnSale == true).OrderBy(p => p.ProductId).Skip(numberOFProductsToDispaly * page).Take(numberOFProductsToDispaly).ToListAsync();
     }
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Product>>> GetProductsIfPromoted(int page, int numberOFProductsToDispaly)
     {
-        return await _context.Products.Where(p => p.IsProductPromoted == true).Skip(numberOFProductsToDispaly * page).Take(numberOFProductsToDispaly).ToListAsync();
+        return await _context.Products.Where(p => p.IsProductPromoted == true).OrderBy(p => p.ProductId).Skip(numberOFProductsToDispaly * page).Take(numberOFProductsToDispaly).ToListAsync();
     }
 
 
@@ -59,42 +60,40 @@ public class ProductController : ControllerBase
 
         return product;
     }
+    [HttpGet]
+    public async Task<ActionResult<Product>> GetProduct(Product prod)
+    {
+        var product = await _context.Products.FirstAsync(p => p.ProductName == prod.ProductName);
+
+        if (product == null)
+        {
+            return NotFound();
+        }
+
+        return product;
+    }
 
     // POST: api/Product
     [HttpPost]
-    public async Task<ActionResult<Product>> PostProduct(PostAccuntProductModel postAccuntProductModel)
-    {
-        Product product = postAccuntProductModel.Product;
-        Account account = postAccuntProductModel.Account;
-        if (account.IsAdmin) {
+    public async Task<ActionResult<Product>> CreateProduct(Product product)
+    { 
             _context.Products.Add(product);
             await _context.SaveChangesAsync();
-
             return CreatedAtAction(nameof(GetProduct), new { id = product.ProductId }, product);
-
-        }
-        else
-        {
-            return NoContent();
-        }
-
 
     }
     [HttpPost]
-    public async Task<ActionResult<Product>> UpdateProduct(PostAccuntProductModel postAccuntProduct)
+    public async Task<ActionResult<Product>> UpdateProduct(Product productToUpdate)
     {
-        var account = _context.Accounts.First(a => a.AccountName == postAccuntProduct.Account.AccountName);
-        if (account.IsAdmin)
+        if (productToUpdate.ProductName != null && ProductExists(productToUpdate))
         {
-            if (postAccuntProduct.Product.ProductName != null && ProductExists(postAccuntProduct.Product.ProductName))
+
+            if (await _context.Products.FindAsync(ProductId(productToUpdate)) is Product existingProduct )
             {
-                var existingProduct = _context.Products.First(p => p.ProductName == postAccuntProduct.Product.ProductName);
                 try
                 {
-                    existingProduct.ProductPrice = postAccuntProduct.Product.ProductPrice;
-                    existingProduct.ProductBasePrice = postAccuntProduct.Product.ProductBasePrice;
-                    existingProduct.IsProductOnSale = postAccuntProduct.Product.IsProductOnSale;
-                    existingProduct.IsProductPromoted = postAccuntProduct.Product.IsProductPromoted;
+                    productToUpdate.ProductId = existingProduct.ProductId;                   
+                    _context.Entry(existingProduct).CurrentValues.SetValues(productToUpdate);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -103,16 +102,17 @@ public class ProductController : ControllerBase
                     throw;
 
                 }
-                return postAccuntProduct.Product;
+                return Ok();
             }
             else
             {
                 return NotFound();
             }
+
         }
         else
         {
-            return BadRequest();
+            return NotFound();
         }
 
 
@@ -134,8 +134,21 @@ public class ProductController : ControllerBase
         return NoContent();
     }
 
-    private bool ProductExists(string name)
+    private bool ProductExists(Product product)
     {
-        return _context.Products.Any(e => e.ProductName == name);
+        return _context.Products.Any(e => e.ProductName == product.ProductName);
+    }
+    private int ProductId(Product product)
+    {
+        var existProduct = _context.Products.FirstOrDefault(p => p.ProductName == product.ProductName);
+        if (existProduct != null)
+        {
+            return existProduct.ProductId;
+        }
+        else
+        {
+            return -1;
+        }
+
     }
 }

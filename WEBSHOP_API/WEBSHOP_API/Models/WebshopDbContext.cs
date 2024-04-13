@@ -9,7 +9,6 @@ namespace WEBSHOP_API.Models
         public WebshopDbContext(DbContextOptions<WebshopDbContext> options) : base(options) { }
 
         public DbSet<Account> Accounts { get; set; }
-        public DbSet<Cart> Carts { get; set; }
         public DbSet<Product> Products { get; set; }
      
         public DbSet<StorageLogger> Logs { get; set; }

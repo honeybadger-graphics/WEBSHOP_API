@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NuGet.Protocol;
+using ServiceStack.Logging;
 using System.Linq;
 using System.Numerics;
 using System.Reflection.Metadata;
@@ -22,7 +24,7 @@ namespace WEBSHOP_API.Controllers
 
         // Post: api/Account/
         [HttpPost]
-        public async Task<ActionResult<string>> LoginRequest(Account Acc)
+        public async Task<ActionResult> LoginRequest(LoginCreds Acc)
         {
             if (AccountExists(Acc))
             {
@@ -46,8 +48,11 @@ namespace WEBSHOP_API.Controllers
         }
          // POST: api/Account
         [HttpPost]
-        public async Task<ActionResult<string>> CreateAccount(Account account)
+        public async Task<ActionResult<string>> CreateAccount(LoginCreds login) //modify the return....
         {
+            Account account = new Account();
+            account.AccountEmail= login.Email;
+            account.AccountPassword = login.Password;
             _context.Accounts.Add(account);
             await _context.SaveChangesAsync();
 
@@ -56,7 +61,7 @@ namespace WEBSHOP_API.Controllers
 
         // GET: api/Account/5
         [HttpPost]
-        public async Task<ActionResult<Account>> GetAccountInformation(Account account)
+        public async Task<ActionResult<Account>> GetAccountInformation(LoginCreds account)
         {
             var existingAccount = await _context.Accounts.FindAsync(AccountId(account));
 
@@ -69,21 +74,19 @@ namespace WEBSHOP_API.Controllers
         }
 
        
-        // Change account escalator to something else for to use ID for escalated account or email cos it requires now a password.... shise
         [HttpPost]
-        public async Task<ActionResult<string>> EscalateAccount(AccountEscalatorHelper accounts)
+        public async Task<ActionResult> EscalateAccount(AccountEscalatorHelper accounts)
         {
-            if (accounts.AccountAdmin.AccountName != null && AccountExists(accounts.AccountAdmin) &&
-                accounts.AccountToEscalate.AccountName != null && AccountExists(accounts.AccountToEscalate))
+            if (accounts.Admin.Email != null && AccountExists(accounts.Admin) && AccountExists(accounts.AccountToEscalateId))
             {
-                var account = _context.Accounts.First(a => a.AccountId == AccountId(accounts.AccountAdmin));
+                var account = await _context.Accounts.FindAsync(AccountId(accounts.Admin));
                 if (account.IsAdmin)
                 {
-                    var existingAccount = _context.Accounts.First(a => a.AccountId == AccountId(accounts.AccountToEscalate));
+                    var existingAccount = await _context.Accounts.FindAsync(accounts.AccountToEscalateId);
 
                     try
                     {
-                        existingAccount.IsAdmin = true;
+                        existingAccount.IsAdmin = true;  // not going to be null cos AccountExists(accounts.AccountToEscalateId) !!
                         await _context.SaveChangesAsync();
                     }
                     catch (DbUpdateConcurrencyException)
@@ -108,16 +111,17 @@ namespace WEBSHOP_API.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Account>> UpdateAccount(Account account)
+        public async Task<ActionResult<Account>> UpdateAccount(Account accountToUodate)
         {
-            if (account.AccountEmail != null && AccountExists(account))
+            if (accountToUodate.AccountEmail != null && AccountExists(accountToUodate))
             {
-                var existingAccount = _context.Accounts.Find(AccountId(account));
-                if(existingAccount != null) {
+
+                if (await _context.Accounts.FindAsync(AccountId(accountToUodate)) is Account existingAccount)
+                {
                     try
                     {
-                        existingAccount.AccountPassword = account.AccountPassword;
-                        existingAccount.AccountEmail = account.AccountEmail;
+                        accountToUodate.AccountId = existingAccount.AccountId;
+                        _context.Entry(existingAccount).CurrentValues.SetValues(accountToUodate);
                         await _context.SaveChangesAsync();
                     }
                     catch (DbUpdateConcurrencyException)
@@ -126,7 +130,7 @@ namespace WEBSHOP_API.Controllers
                         throw;
 
                     }
-                    return account.ToJson();
+                    return Ok();
                 }
                 else
                 {
@@ -157,15 +161,44 @@ namespace WEBSHOP_API.Controllers
             return NoContent();
         }
 
+        private bool AccountExists(LoginCreds account)
+        {
+            return _context.Accounts.Any(a => a.AccountEmail == account.Email);
+        }
         private bool AccountExists(Account account)
         {
             return _context.Accounts.Any(a => a.AccountEmail == account.AccountEmail);
         }
+        private bool AccountExists(int accountID)
+        {
+            return _context.Accounts.Any(a => a.AccountId == accountID);
+        }
 
+        private int AccountId(LoginCreds account)
+        {
+            var existAccount = _context.Accounts.FirstOrDefault(a => a.AccountEmail == account.Email && a.AccountPassword == account.Password);
+            if (existAccount != null)
+            {
+                return existAccount.AccountId;
+            }
+            else
+            {
+                return -1;
+            }
+           
+        }
         private int AccountId(Account account)
         {
-            var existAccount = _context.Accounts.First(a => a.AccountEmail == account.AccountEmail);
-            return existAccount.AccountId;
+            var existAccount = _context.Accounts.FirstOrDefault(a => a.AccountEmail == account.AccountEmail && a.AccountPassword == account.AccountPassword);
+            if (existAccount != null)
+            {
+                return existAccount.AccountId;
+            }
+            else
+            {
+                return -1;
+            }
+
         }
     }
 }
