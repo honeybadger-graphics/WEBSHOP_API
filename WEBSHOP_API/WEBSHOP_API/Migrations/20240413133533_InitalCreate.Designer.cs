@@ -11,8 +11,8 @@ using WEBSHOP_API.Models;
 namespace WEBSHOP_API.Migrations
 {
     [DbContext(typeof(WebshopDbContext))]
-    [Migration("20240411172933_initial")]
-    partial class initial
+    [Migration("20240413133533_InitalCreate")]
+    partial class InitalCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -73,9 +73,6 @@ namespace WEBSHOP_API.Migrations
                     b.Property<string>("ProductCategory")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("ProductCount")
-                        .HasColumnType("INTEGER");
-
                     b.Property<string>("ProductDescription")
                         .HasColumnType("TEXT");
 
@@ -88,14 +85,30 @@ namespace WEBSHOP_API.Migrations
                     b.Property<int>("ProductPrice")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("ProductStock")
+                    b.Property<int>("StocksId")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("ProductId");
 
                     b.HasIndex("AccountId");
 
+                    b.HasIndex("StocksId");
+
                     b.ToTable("Products");
+                });
+
+            modelBuilder.Entity("WEBSHOP_API.Models.Stocks", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ProductStocks")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Stocks");
                 });
 
             modelBuilder.Entity("WEBSHOP_API.Storage.StorageLogger", b =>
@@ -126,6 +139,14 @@ namespace WEBSHOP_API.Migrations
                     b.HasOne("WEBSHOP_API.Models.Account", null)
                         .WithMany("Cart")
                         .HasForeignKey("AccountId");
+
+                    b.HasOne("WEBSHOP_API.Models.Stocks", "Stocks")
+                        .WithMany()
+                        .HasForeignKey("StocksId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Stocks");
                 });
 
             modelBuilder.Entity("WEBSHOP_API.Models.Account", b =>

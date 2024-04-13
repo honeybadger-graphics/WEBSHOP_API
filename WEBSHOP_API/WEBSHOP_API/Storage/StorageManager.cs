@@ -15,7 +15,7 @@ namespace WEBSHOP_API.Storage
             if (StockExists(product.ProductId))
             {
                 var productStock = _context.Products.First(s => s.ProductId == product.ProductId);
-                productStock.ProductStock = 0;
+             //   productStock.ProductStock = 0;
                 await _context.SaveChangesAsync();
             }
         }
@@ -24,7 +24,7 @@ namespace WEBSHOP_API.Storage
             var product = _context.Products.First(p => p.ProductName == pName);
             if (StockExists(product.ProductId)) {
                 var productStock = _context.Products.First(s => s.ProductId == product.ProductId);
-                productStock.ProductStock += changeStock;
+              //  productStock.ProductStock += changeStock;
                 await _context.SaveChangesAsync();
             }
         }

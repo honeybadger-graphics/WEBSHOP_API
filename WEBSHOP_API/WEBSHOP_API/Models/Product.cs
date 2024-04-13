@@ -11,9 +11,7 @@ namespace WEBSHOP_API.Models
         public List<string>? ProductDescription { get; set; }
         public string? ProductCategory { get; set; }
         public string? ProductImage { get; set; } // URL for image
-       // public int ProductCount { get; set; } should remove this. not needed. use DTO to later modify stock while purchase 
-        [JsonIgnore]
-        public int ProductStock { get; set; }
+       
        
         public int ProductPrice { get; set; }
       

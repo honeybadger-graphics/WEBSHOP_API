@@ -7,6 +7,7 @@ using ServiceStack.Logging;
 using System.Linq;
 using System.Numerics;
 using System.Reflection.Metadata;
+using WEBSHOP_API.Helpers;
 using WEBSHOP_API.Models;
 
 namespace WEBSHOP_API.Controllers
@@ -50,9 +51,11 @@ namespace WEBSHOP_API.Controllers
         [HttpPost]
         public async Task<ActionResult<string>> CreateAccount(LoginCreds login) //modify the return....
         {
-            Account account = new Account();
-            account.AccountEmail= login.Email;
-            account.AccountPassword = login.Password;
+            Account account = new()
+            {
+                AccountEmail = login.Email,
+                AccountPassword = login.Password
+            };
             _context.Accounts.Add(account);
             await _context.SaveChangesAsync();
 
@@ -86,7 +89,7 @@ namespace WEBSHOP_API.Controllers
 
                     try
                     {
-                        existingAccount.IsAdmin = true;  // not going to be null cos AccountExists(accounts.AccountToEscalateId) !!
+                        existingAccount.IsAdmin = true;  // not going to be null cos AccountExists(accounts.Admin) !!
                         await _context.SaveChangesAsync();
                     }
                     catch (DbUpdateConcurrencyException)
@@ -111,17 +114,17 @@ namespace WEBSHOP_API.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Account>> UpdateAccount(Account accountToUodate)
+        public async Task<ActionResult<Account>> UpdateAccount(Account accountToUpdate)
         {
-            if (accountToUodate.AccountEmail != null && AccountExists(accountToUodate))
+            if (accountToUpdate.AccountEmail != null && AccountExists(accountToUpdate))
             {
 
-                if (await _context.Accounts.FindAsync(AccountId(accountToUodate)) is Account existingAccount)
+                if (await _context.Accounts.FindAsync(AccountId(accountToUpdate)) is Account existingAccount)
                 {
                     try
                     {
-                        accountToUodate.AccountId = existingAccount.AccountId;
-                        _context.Entry(existingAccount).CurrentValues.SetValues(accountToUodate);
+                        accountToUpdate.AccountId = existingAccount.AccountId;
+                        _context.Entry(existingAccount).CurrentValues.SetValues(accountToUpdate);
                         await _context.SaveChangesAsync();
                     }
                     catch (DbUpdateConcurrencyException)
@@ -140,7 +143,7 @@ namespace WEBSHOP_API.Controllers
             }
             else
             {
-                return NotFound();
+                return BadRequest();
             }
 
         }

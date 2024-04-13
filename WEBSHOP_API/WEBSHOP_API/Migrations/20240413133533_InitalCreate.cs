@@ -5,7 +5,7 @@
 namespace WEBSHOP_API.Migrations
 {
     /// <inheritdoc />
-    public partial class initial : Migration
+    public partial class InitalCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -46,6 +46,19 @@ namespace WEBSHOP_API.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Stocks",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    ProductStocks = table.Column<int>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Stocks", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Products",
                 columns: table => new
                 {
@@ -55,12 +68,11 @@ namespace WEBSHOP_API.Migrations
                     ProductDescription = table.Column<string>(type: "TEXT", nullable: true),
                     ProductCategory = table.Column<string>(type: "TEXT", nullable: true),
                     ProductImage = table.Column<string>(type: "TEXT", nullable: true),
-                    ProductCount = table.Column<int>(type: "INTEGER", nullable: false),
-                    ProductStock = table.Column<int>(type: "INTEGER", nullable: false),
                     ProductPrice = table.Column<int>(type: "INTEGER", nullable: false),
                     ProductBasePrice = table.Column<int>(type: "INTEGER", nullable: false),
                     IsProductPromoted = table.Column<bool>(type: "INTEGER", nullable: false),
                     IsProductOnSale = table.Column<bool>(type: "INTEGER", nullable: false),
+                    StocksId = table.Column<int>(type: "INTEGER", nullable: false),
                     AccountId = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
@@ -71,12 +83,23 @@ namespace WEBSHOP_API.Migrations
                         column: x => x.AccountId,
                         principalTable: "Accounts",
                         principalColumn: "AccountId");
+                    table.ForeignKey(
+                        name: "FK_Products_Stocks_StocksId",
+                        column: x => x.StocksId,
+                        principalTable: "Stocks",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Products_AccountId",
                 table: "Products",
                 column: "AccountId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Products_StocksId",
+                table: "Products",
+                column: "StocksId");
         }
 
         /// <inheritdoc />
@@ -90,6 +113,9 @@ namespace WEBSHOP_API.Migrations
 
             migrationBuilder.DropTable(
                 name: "Accounts");
+
+            migrationBuilder.DropTable(
+                name: "Stocks");
         }
     }
 }

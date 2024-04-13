@@ -82,14 +82,30 @@ namespace WEBSHOP_API.Migrations
                     b.Property<int>("ProductPrice")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("ProductStock")
-                        .HasColumnType("INTEGER");
-
                     b.HasKey("ProductId");
 
                     b.HasIndex("AccountId");
 
                     b.ToTable("Products");
+                });
+
+            modelBuilder.Entity("WEBSHOP_API.Models.Stocks", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ProductStocks")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("Stocks");
                 });
 
             modelBuilder.Entity("WEBSHOP_API.Storage.StorageLogger", b =>
@@ -120,6 +136,17 @@ namespace WEBSHOP_API.Migrations
                     b.HasOne("WEBSHOP_API.Models.Account", null)
                         .WithMany("Cart")
                         .HasForeignKey("AccountId");
+                });
+
+            modelBuilder.Entity("WEBSHOP_API.Models.Stocks", b =>
+                {
+                    b.HasOne("WEBSHOP_API.Models.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("WEBSHOP_API.Models.Account", b =>

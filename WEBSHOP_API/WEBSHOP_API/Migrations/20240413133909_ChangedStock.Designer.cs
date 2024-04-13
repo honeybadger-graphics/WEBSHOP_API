@@ -11,8 +11,8 @@ using WEBSHOP_API.Models;
 namespace WEBSHOP_API.Migrations
 {
     [DbContext(typeof(WebshopDbContext))]
-    [Migration("20240413113820_removed_ProductCount")]
-    partial class removed_ProductCount
+    [Migration("20240413133909_ChangedStock")]
+    partial class ChangedStock
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -85,14 +85,30 @@ namespace WEBSHOP_API.Migrations
                     b.Property<int>("ProductPrice")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("ProductStock")
-                        .HasColumnType("INTEGER");
-
                     b.HasKey("ProductId");
 
                     b.HasIndex("AccountId");
 
                     b.ToTable("Products");
+                });
+
+            modelBuilder.Entity("WEBSHOP_API.Models.Stocks", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ProductStocks")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("Stocks");
                 });
 
             modelBuilder.Entity("WEBSHOP_API.Storage.StorageLogger", b =>
@@ -123,6 +139,17 @@ namespace WEBSHOP_API.Migrations
                     b.HasOne("WEBSHOP_API.Models.Account", null)
                         .WithMany("Cart")
                         .HasForeignKey("AccountId");
+                });
+
+            modelBuilder.Entity("WEBSHOP_API.Models.Stocks", b =>
+                {
+                    b.HasOne("WEBSHOP_API.Models.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("WEBSHOP_API.Models.Account", b =>

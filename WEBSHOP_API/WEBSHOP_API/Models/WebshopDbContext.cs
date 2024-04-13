@@ -12,6 +12,7 @@ namespace WEBSHOP_API.Models
         public DbSet<Product> Products { get; set; }
      
         public DbSet<StorageLogger> Logs { get; set; }
+        public DbSet<Stocks> Stocks { get; set; }
     }
     
 
