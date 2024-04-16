@@ -74,16 +74,21 @@ namespace WEBSHOP_API.Controllers
 
         // POST: api/Product
         [HttpPost]
-        public async Task<ActionResult<Product>> CreateProduct(Product product)
+        public async Task<ActionResult<string>> CreateProductAndStock(Product product)
         {
             //TODO: create a method to automaticly create a record for stocks....
             _context.Products.Add(product);
+            await _context.SaveChangesAsync(); 
+            var existingProduct = await _context.Products.FindAsync(ProductId(product));
+            Stocks stock = new Stocks();
+            stock.Product = existingProduct;
+            _context.Stocks.Add(stock);
             await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetProduct), new { id = product.ProductId }, product);
+            return Ok();
 
         }
         [HttpPost]
-        public async Task<ActionResult<Product>> UpdateProduct(Product productToUpdate)
+        public async Task<ActionResult<string>> UpdateProduct(Product productToUpdate)
         {
             if (productToUpdate.ProductName != null && ProductExists(productToUpdate))
             {

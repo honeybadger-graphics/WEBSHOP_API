@@ -11,7 +11,7 @@ using WEBSHOP_API.Helpers;
 using WEBSHOP_API.Models;
 
 namespace WEBSHOP_API.Controllers
-{
+{ //TODO: Create method to update cart.
     [Route("api/[controller]/[Action]")]
     [ApiController]
     public class AccountController : ControllerBase
@@ -188,7 +188,7 @@ namespace WEBSHOP_API.Controllers
             {
                 return -1;
             }
-           
+
         }
         private int AccountId(Account account)
         {

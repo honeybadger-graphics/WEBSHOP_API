@@ -4,8 +4,8 @@ namespace WEBSHOP_API.Helpers
 {
     public class CartHelper
     {
-        public Product Product { get; set; }
-        public int ProductCount { get; set; }
+        public Product Products { get; set; }
+        public int ProductsCounts { get; set; }
     }
 
 }
