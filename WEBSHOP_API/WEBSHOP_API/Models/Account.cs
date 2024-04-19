@@ -1,6 +1,4 @@
-﻿using ServiceStack.DataAnnotations;
-using System.Text.Json.Serialization;
-using WEBSHOP_API.Helpers;
+﻿using System.Text.Json.Serialization;
 namespace WEBSHOP_API.Models
 {
     public class Account
@@ -19,6 +17,6 @@ namespace WEBSHOP_API.Models
         public string? AccountAddress { get; set; }
         [JsonIgnore]
         public bool IsAdmin { get; set; } = false;
-        public List<CartHelper>? Cart { get; set; }
+       public Cart Cart { get; set; }
     }
 }

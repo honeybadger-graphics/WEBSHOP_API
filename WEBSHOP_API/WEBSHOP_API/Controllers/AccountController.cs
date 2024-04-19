@@ -56,8 +56,10 @@ namespace WEBSHOP_API.Controllers
                 AccountEmail = login.Email,
                 AccountPassword = login.Password
             };
+           
             _context.Accounts.Add(account);
-            await _context.SaveChangesAsync();
+            _context.Carts.Add(account.Cart);
+           await _context.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetAccountInformation), new { id = account.AccountId }, account);
         }

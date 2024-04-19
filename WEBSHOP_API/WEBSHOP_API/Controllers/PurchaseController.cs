@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Client;
 using WEBSHOP_API.Helpers;
 using WEBSHOP_API.Models;
@@ -22,16 +23,21 @@ namespace WEBSHOP_API.Controllers
         public async Task<ActionResult> MakePurchase(Account account)
         {
             var existingAccount = await _context.Accounts.FindAsync(AccountId(account));
+            var cart = await _context.Carts.FindAsync(existingAccount.Cart.CartId);
             StorageLogger logger; 
-            if (existingAccount != null && existingAccount.Cart != null) {
-                foreach (CartHelper helper in existingAccount.Cart) {
-                    var existingStocks = await _context.Stocks.FindAsync(ProductId(helper.Products));
-                    logger = new StorageLogger(existingAccount.AccountId, helper.Products.ProductId, -helper.ProductsCounts, "Purchase");
-                    existingStocks.ProductStocks -= helper.ProductsCounts;
-                    _context.Logs.Add(logger);
+            if (existingAccount != null && cart != null) {
+              
+                for (int i = 0; i < cart.ProductsName.Count; i++)
+                {
+                    logger = new StorageLogger(AccountId(account), ProductId(cart.ProductsName[i]), -cart.ProductsCounts[i], "Purchase");
+                    var existingStock = await _context.Stocks.FirstAsync(s => s.ProductId == ProductId(cart.ProductsName[i]));
+                    existingStock.ProductStocks -= cart.ProductsCounts[i]; 
                     _context.SaveChanges();
 
-                } ;
+                }
+                cart.ProductsName = null; 
+                cart.ProductsCounts = null;
+                _context.SaveChanges();
                 return Ok();
 
             }
@@ -55,9 +61,9 @@ namespace WEBSHOP_API.Controllers
             }
 
         }
-        private int ProductId(Product product)
+        private int ProductId(string productName)
         {
-            var existProduct = _context.Products.FirstOrDefault(p => p.ProductName == product.ProductName);
+            var existProduct = _context.Products.FirstOrDefault(p => p.ProductName == productName);
             if (existProduct != null)
             {
                 return existProduct.ProductId;

@@ -20,7 +20,7 @@ namespace WEBSHOP_API.Models
         public bool IsProductPromoted { get; set; }
         [JsonIgnore]
         public bool IsProductOnSale { get; set; }
-        
+      
     }
     
 }
