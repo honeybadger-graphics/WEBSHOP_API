@@ -47,21 +47,35 @@ namespace WEBSHOP_API.Controllers
             }
            
         }
-         // POST: api/Account
+        // POST: api/Account
         [HttpPost]
         public async Task<ActionResult<string>> CreateAccount(LoginCreds login) //modify the return....
         {
-            Account account = new()
+            if (!AccountExists(login))
             {
-                AccountEmail = login.Email,
-                AccountPassword = login.Password
-            };
-           
-            _context.Accounts.Add(account);
-            _context.Carts.Add(account.Cart);
-           await _context.SaveChangesAsync();
+                Account account = new()
+                {
+                    AccountEmail = login.Email,
+                    AccountPassword = login.Password
+                };
 
-            return CreatedAtAction(nameof(GetAccountInformation), new { id = account.AccountId }, account);
+                _context.Accounts.Add(account);
+                await _context.SaveChangesAsync();
+                Cart cart = new()
+                {
+                    CartId = AccountId(account),
+                };
+
+                _context.Carts.Add(cart);
+                await _context.SaveChangesAsync();
+
+                return Ok();
+            }
+            else
+            {
+               return BadRequest();
+            }
+            
         }
 
         // GET: api/Account/5
@@ -69,6 +83,7 @@ namespace WEBSHOP_API.Controllers
         public async Task<ActionResult<Account>> GetAccountInformation(LoginCreds account)
         {
             var existingAccount = await _context.Accounts.FindAsync(AccountId(account));
+            existingAccount.Cart = await _context.Carts.FindAsync(existingAccount.AccountId);
 
             if (existingAccount == null)
             {
@@ -126,6 +141,8 @@ namespace WEBSHOP_API.Controllers
                     try
                     {
                         accountToUpdate.AccountId = existingAccount.AccountId;
+                        accountToUpdate.AccountEmail = existingAccount.AccountEmail;
+                        accountToUpdate.Cart = existingAccount.Cart;
                         _context.Entry(existingAccount).CurrentValues.SetValues(accountToUpdate);
                         await _context.SaveChangesAsync();
                     }

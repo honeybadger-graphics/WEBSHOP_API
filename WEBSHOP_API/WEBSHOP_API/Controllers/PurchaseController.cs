@@ -20,6 +20,7 @@ namespace WEBSHOP_API.Controllers
             _context = context;
         }
         [HttpPost]
+        //rewrite this...... take logincreds not account
         public async Task<ActionResult> MakePurchase(Account account)
         {
             var existingAccount = await _context.Accounts.FindAsync(AccountId(account));

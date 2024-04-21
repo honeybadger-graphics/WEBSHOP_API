@@ -17,6 +17,6 @@ namespace WEBSHOP_API.Models
         public string? AccountAddress { get; set; }
         [JsonIgnore]
         public bool IsAdmin { get; set; } = false;
-       public Cart Cart { get; set; }
+        public Cart? Cart { get; set; }
     }
 }

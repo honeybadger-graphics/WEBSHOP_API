@@ -1,11 +1,12 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using WEBSHOP_API.Helpers;
 using WEBSHOP_API.Models;
 
 namespace WEBSHOP_API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/[controller]/[action]")]
     [ApiController]
     public class CartController : ControllerBase
     {
@@ -16,13 +17,13 @@ namespace WEBSHOP_API.Controllers
             _context = context;
         }
         [HttpPost]
-        public async Task<ActionResult<string>> UpdateCart(Cart cart)
+        public async Task<ActionResult<string>> UpdateCart(CartHelper helper)
         {
-            var existingCart = await _context.Carts.FindAsync(cart.CartId);
+            var existingCart = await _context.Carts.FindAsync(AccountId(helper.creds));
             if (existingCart != null)
             {
-                existingCart.ProductsName = cart.ProductsName;
-                existingCart.ProductsCounts = cart.ProductsCounts;
+                existingCart.ProductsName = helper.UpdateCart.ProductsName;
+                existingCart.ProductsCounts = helper.UpdateCart.ProductsCounts;
                 await _context.SaveChangesAsync();
                 return Ok();
             }else { return BadRequest(); }
@@ -30,9 +31,9 @@ namespace WEBSHOP_API.Controllers
 
         }
         [HttpPost]
-        public async Task<ActionResult<string>> EmtpyCart(int cartID)
+        public async Task<ActionResult<string>> EmtpyCart(LoginCreds creds)
         {
-            var existingCart = await _context.Carts.FindAsync(cartID);
+            var existingCart = await _context.Carts.FindAsync(AccountId(creds));
             if (existingCart != null)
             {
                 existingCart.ProductsName =null;
@@ -42,6 +43,19 @@ namespace WEBSHOP_API.Controllers
             }
             else { return BadRequest(); }
 
+
+        }
+        private int AccountId(LoginCreds account)
+        {
+            var existAccount = _context.Accounts.FirstOrDefault(a => a.AccountEmail == account.Email && a.AccountPassword == account.Password);
+            if (existAccount != null)
+            {
+                return existAccount.AccountId;
+            }
+            else
+            {
+                return -1;
+            }
 
         }
     }
