@@ -26,25 +26,24 @@ namespace WEBSHOP_API.Controllers
                 existingCart.ProductsCounts = helper.UpdateCart.ProductsCounts;
                 await _context.SaveChangesAsync();
                 return Ok();
-            }else { return BadRequest(); }
-           
-
+            }
+            else { return BadRequest(); }
         }
+
         [HttpPost]
         public async Task<ActionResult<string>> EmtpyCart(LoginCreds creds)
         {
             var existingCart = await _context.Carts.FindAsync(AccountId(creds));
             if (existingCart != null)
             {
-                existingCart.ProductsName =null;
+                existingCart.ProductsName = null;
                 existingCart.ProductsCounts = null;
                 await _context.SaveChangesAsync();
                 return Ok();
             }
             else { return BadRequest(); }
-
-
         }
+
         private int AccountId(LoginCreds account)
         {
             var existAccount = _context.Accounts.FirstOrDefault(a => a.AccountEmail == account.Email && a.AccountPassword == account.Password);
