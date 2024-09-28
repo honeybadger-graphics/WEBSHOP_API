@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Client;
 using WEBSHOP_API.Helpers;
 using WEBSHOP_API.Models;
-using WEBSHOP_API.Storage;
 
 
 namespace WEBSHOP_API.Controllers

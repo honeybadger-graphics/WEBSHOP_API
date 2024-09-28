@@ -16,6 +16,7 @@ namespace WEBSHOP_API.Controllers
         {
             _context = context;
         }
+
         [HttpPost]
         public async Task<ActionResult<string>> UpdateCart(CartHelper helper)
         {

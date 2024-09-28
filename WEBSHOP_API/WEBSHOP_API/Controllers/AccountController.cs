@@ -61,7 +61,7 @@ namespace WEBSHOP_API.Controllers
 
                 _context.Accounts.Add(account);
                 await _context.SaveChangesAsync();
-                Cart cart = new()
+                CartDTO cart = new()
                 {
                     CartId = AccountId(account),
                 };
