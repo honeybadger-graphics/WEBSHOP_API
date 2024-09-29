@@ -15,6 +15,6 @@ namespace WEBSHOP_API.Models
        
         public string? AccountAddress { get; set; }
         public bool IsAdmin { get; set; } = false;
-        public CartDTO? Cart { get; set; }
+        public Cart? Cart { get; set; }
     }
 }
