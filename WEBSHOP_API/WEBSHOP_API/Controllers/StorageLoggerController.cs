@@ -5,7 +5,7 @@ namespace WEBSHOP_API.Controllers
 {
     [Route("api/[controller]/[Action]")]
     [ApiController]
-    public class StorageController : ControllerBase
+    public class StorageLoggerController : ControllerBase
     {
         // create storagecontrollers and modifiers.....
     }

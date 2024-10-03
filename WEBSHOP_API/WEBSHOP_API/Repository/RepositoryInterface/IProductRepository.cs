@@ -11,12 +11,13 @@ namespace WEBSHOP_API.Repository.RepositoryInterface
         Task<IEnumerable<Product>> GetProductsByCategory(string category, int page, int numberOFProductsToDispaly);
         Task<IEnumerable<Product>> GetProductsIfOnSale(int page, int numberOFProductsToDispaly);
         Task<IEnumerable<Product>> GetProductsIfPromoted(int page, int numberOFProductsToDispaly);
-        Product GetProductById(int pruductId);
-        Product GetProductByName(string productName);
-        Product GetProductByProduct(Product product);
-        void CreateProductAndStock(Product product);
+        Task<Product> GetProductById(int pruductId);
+        Task<Product> GetProductByName(string productName);
+        Task<Product> GetProductByProduct(Product product);
+        Task<Product> AddProduct(Product product);
+        Task CreateProductAndStock(Product product);
         void UpdateProduct(Product productToUpdate);
-        void DeleteProduct(int productId);
+        Task DeleteProduct(int productId);
         void Save();
 
     }

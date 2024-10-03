@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Configuration;
 using WEBSHOP_API.Models;
 using WEBSHOP_API.Repository.RepositoryInterface;
 
@@ -8,7 +9,7 @@ namespace WEBSHOP_API.Repository
     {
 
         private WebshopDbContext context;
-        ProductRepository(WebshopDbContext context)
+        public ProductRepository(WebshopDbContext context)
         {
             this.context = context;
         }
@@ -16,52 +17,65 @@ namespace WEBSHOP_API.Repository
         public async Task<IEnumerable<Product>> GetProducts(int page, int numberOFProductsToDispaly)
         {
              
-            return await context.Products.OrderBy(p => p.ProductId).Skip(numberOFProductsToDispaly * page).Take(numberOFProductsToDispaly).ToListAsync();
+            return await context.Products.OrderBy(p => p.ProductId).Skip(numberOFProductsToDispaly * (page-1)).Take(numberOFProductsToDispaly).ToListAsync();
         }
         public async Task<IEnumerable<Product>> GetProductsByCategory(string category, int page, int numberOFProductsToDispaly)
         {
-            return await context.Products.Where(p => p.ProductCategory == category).OrderBy(p => p.ProductId).Skip(numberOFProductsToDispaly * page).Take(numberOFProductsToDispaly).ToListAsync();
+            return await context.Products.Where(p => p.ProductCategory == category).OrderBy(p => p.ProductId).Skip(numberOFProductsToDispaly * (page-1)).Take(numberOFProductsToDispaly).ToListAsync();
         }
 
         public async Task<IEnumerable<Product>> GetProductsIfOnSale(int page, int numberOFProductsToDispaly)
         {
-            return await context.Products.Where(p => p.IsProductOnSale == true).OrderBy(p => p.ProductId).Skip(numberOFProductsToDispaly * page).Take(numberOFProductsToDispaly).ToListAsync();
+            return await context.Products.Where(p => p.IsProductOnSale == true).OrderBy(p => p.ProductId).Skip(numberOFProductsToDispaly * (page-1)).Take(numberOFProductsToDispaly).ToListAsync();
         }
 
         public async Task<IEnumerable<Product>> GetProductsIfPromoted(int page, int numberOFProductsToDispaly)
         {
-            return await context.Products.Where(p => p.IsProductPromoted == true).OrderBy(p => p.ProductId).Skip(numberOFProductsToDispaly * page).Take(numberOFProductsToDispaly).ToListAsync();
+            return await context.Products.Where(p => p.IsProductPromoted == true).OrderBy(p => p.ProductId).Skip(numberOFProductsToDispaly * (page-1)).Take(numberOFProductsToDispaly).ToListAsync();
         }
 
-        public Product GetProductById(int productId)
+        public async Task<Product> GetProductById(int productId)
         {
-            return context.Products.Find(productId);
+            return await context.Products.FindAsync(productId);
         }
 
-        public Product GetProductByName(string productName)
+        public async Task<Product> GetProductByName(string productName)
         {
-            return context.Products.First(p => p.ProductName == productName); ;
+            return await context.Products.FirstAsync(p => p.ProductName == productName); ;
         }
-
-        public Product GetProductByProduct(Product product)
+        // possibly not needed
+        public async Task<Product> GetProductByProduct(Product product)
         {
-            return context.Products.First(p => p.ProductName == product.ProductName);
+            return await context.Products.FirstAsync(p => p.ProductName == product.ProductName);
         }
-
-        public void CreateProductAndStock(Product product)
+        public async Task<Product> AddProduct(Product product)
         {
-            return; //implement it somehow
+            var result = await context.Products.AddAsync(product);
+            await context.SaveChangesAsync();   
+            return result.Entity;
+        }
+        public async Task CreateProductAndStock(Product product)
+        {
+            var createdProduct = await context.Products.AddAsync(product);
+            await context.SaveChangesAsync();
+            Stock stock = new Stock();
+            stock.ProductId = createdProduct.Entity.ProductId; //wrong id for product id
+            await context.Stocks.AddAsync(stock);
+            await context.SaveChangesAsync();
         }
 
-        public void UpdateProduct(Product productToUpdate)
+        public async void UpdateProduct(Product productToUpdate)
         {
             context.Entry(productToUpdate).State = EntityState.Modified;
+            await context.SaveChangesAsync();
         }
 
-        public void DeleteProduct(int productId)
+        public async Task DeleteProduct(int productId)
         {
-            Product product = context.Products.Find(productId);
+            Product product = await context.Products.FindAsync(productId);
             context.Products.Remove(product);
+            await context.SaveChangesAsync();
+            
         }
 
         public void Save()
@@ -88,6 +102,8 @@ namespace WEBSHOP_API.Repository
             Dispose(true);
             GC.SuppressFinalize(this);
         }
+
+       
     }
 
 }
