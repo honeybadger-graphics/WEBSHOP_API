@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Client;
 using WEBSHOP_API.Helpers;
 using WEBSHOP_API.Models;
-using WEBSHOP_API.Storage;
 
 
 namespace WEBSHOP_API.Controllers
@@ -28,15 +27,15 @@ namespace WEBSHOP_API.Controllers
             StorageLogger logger; 
             if (existingAccount != null && cart != null) {
               
-                for (int i = 0; i < cart.ProductsName.Count; i++)
+                for (int i = 0; i < cart.ProductsId.Count; i++)
                 {
-                    logger = new StorageLogger(AccountId(account), ProductId(cart.ProductsName[i]), -cart.ProductsCounts[i], "Purchase");
-                    var existingStock = await _context.Stocks.FirstAsync(s => s.ProductId == ProductId(cart.ProductsName[i]));
+                    logger = new StorageLogger(AccountId(account), cart.ProductsId[i], -cart.ProductsCounts[i], "Purchase");
+                    var existingStock = await _context.Stocks.FirstAsync(s => s.ProductId == cart.ProductsId[i]);
                     existingStock.ProductStocks -= cart.ProductsCounts[i]; 
                     _context.SaveChanges();
 
                 }
-                cart.ProductsName = null; 
+                cart.ProductsId = null; 
                 cart.ProductsCounts = null;
                 _context.SaveChanges();
                 return Ok();

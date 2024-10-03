@@ -1,11 +1,11 @@
-﻿namespace WEBSHOP_API.Storage
+﻿namespace WEBSHOP_API.Models
 {
     public class StorageLogger
     {
-       
 
-        public StorageLogger( int accountId, int productId, int stockChange, string? reason)
-        { 
+
+        public StorageLogger(int accountId, int productId, int stockChange, string? reason)
+        {
             Date = DateTime.Now.ToLongTimeString();
             AccountId = accountId;
             ProductId = productId;
@@ -18,6 +18,6 @@
         public int ProductId { get; set; }
         public int StockChange { get; set; }
         public string? Reason { get; set; }
-        
+
     }
 }

@@ -2,8 +2,9 @@
 
 namespace WEBSHOP_API.Models
 {
-    public class Cart
+    public class CartDTO
     {
+        [JsonIgnore]
         public int CartId { get; set; }
         public List<int>? ProductsId { get; set; }
         public List<int>? ProductsCounts { get; set; }

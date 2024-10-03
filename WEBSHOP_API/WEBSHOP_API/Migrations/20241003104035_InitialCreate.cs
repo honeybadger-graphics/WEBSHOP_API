@@ -5,7 +5,7 @@
 namespace WEBSHOP_API.Migrations
 {
     /// <inheritdoc />
-    public partial class IniCreate : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -16,7 +16,7 @@ namespace WEBSHOP_API.Migrations
                 {
                     CartId = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    ProductsName = table.Column<string>(type: "TEXT", nullable: true),
+                    ProductsId = table.Column<string>(type: "TEXT", nullable: true),
                     ProductsCounts = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
@@ -88,7 +88,7 @@ namespace WEBSHOP_API.Migrations
                     AccountEmail = table.Column<string>(type: "TEXT", nullable: true),
                     AccountAddress = table.Column<string>(type: "TEXT", nullable: true),
                     IsAdmin = table.Column<bool>(type: "INTEGER", nullable: false),
-                    CartId = table.Column<int>(type: "INTEGER", nullable: false)
+                    CartId = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -97,8 +97,7 @@ namespace WEBSHOP_API.Migrations
                         name: "FK_Accounts_Carts_CartId",
                         column: x => x.CartId,
                         principalTable: "Carts",
-                        principalColumn: "CartId",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "CartId");
                 });
 
             migrationBuilder.CreateIndex(

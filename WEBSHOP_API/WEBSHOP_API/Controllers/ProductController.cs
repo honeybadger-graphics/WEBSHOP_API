@@ -9,6 +9,8 @@ using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using WEBSHOP_API.Models;
+using WEBSHOP_API.Repository;
+using WEBSHOP_API.Repository.RepositoryInterface;
 
 namespace WEBSHOP_API.Controllers
 {
@@ -16,67 +18,144 @@ namespace WEBSHOP_API.Controllers
     [Route("api/[controller]/[Action]")]
     public class ProductController : ControllerBase
     {
-        private readonly WebshopDbContext _context;
+        private readonly IProductRepository productRepository;
+        private readonly IStockRepository stockRepository;
+        //private readonly WebshopDbContext _context;
 
-        public ProductController(WebshopDbContext context)
+        /*public ProductController(WebshopDbContext context)
         {
             _context = context;
+        }
+        public ProductController()
+        {
+            this.productRepository = new ProductRepository();
+        }*/
+
+        public ProductController(IProductRepository productRepository, IStockRepository stockRepository)
+        {
+            this.productRepository = productRepository;
+            this.stockRepository= stockRepository;
         }
 
         // GET: api/Product
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Product>>> GetProducts(int page, int numberOFProductsToDispaly)
+        public async Task<ActionResult> GetProducts(int page, int numberOFProductsToDispaly)
         {
-            return await _context.Products.OrderBy(p => p.ProductId).Skip(numberOFProductsToDispaly * page).Take(numberOFProductsToDispaly).ToListAsync();
+            try
+            {
+                return Ok(await productRepository.GetProducts(page, numberOFProductsToDispaly));
+            }
+            catch (Exception) {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                 "Error retrieving data from the database");
+            }
         }
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Product>>> GetProductsByCategory(string category, int page, int numberOFProductsToDispaly)
+        public async Task<ActionResult> GetProductsByCategory(string category, int page, int numberOFProductsToDispaly)
         {
-            return await _context.Products.Where(p => p.ProductCategory == category).OrderBy(p => p.ProductId).Skip(numberOFProductsToDispaly * page).Take(numberOFProductsToDispaly).ToListAsync();
+            try
+            {
+                return Ok(await productRepository.GetProductsByCategory(category, page, numberOFProductsToDispaly));
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                 "Error retrieving data from the database");
+            }
+            //return await productRepository.GetProductsByCategory(category,page,numberOFProductsToDispaly);
         }
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Product>>> GetProductsIfOnSale(int page, int numberOFProductsToDispaly)
+        public async Task<ActionResult> GetProductsIfOnSale(int page, int numberOFProductsToDispaly)
         {
-            return await _context.Products.Where(p => p.IsProductOnSale == true).OrderBy(p => p.ProductId).Skip(numberOFProductsToDispaly * page).Take(numberOFProductsToDispaly).ToListAsync();
+            try
+            {
+                return Ok(await productRepository.GetProductsIfOnSale(page, numberOFProductsToDispaly));
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                 "Error retrieving data from the database");
+            }
+            //return await productRepository.GetProductsIfOnSale(page, numberOFProductsToDispaly);
         }
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Product>>> GetProductsIfPromoted(int page, int numberOFProductsToDispaly)
+        public async Task<ActionResult> GetProductsIfPromoted(int page, int numberOFProductsToDispaly)
         {
-            return await _context.Products.Where(p => p.IsProductPromoted == true).OrderBy(p => p.ProductId).Skip(numberOFProductsToDispaly * page).Take(numberOFProductsToDispaly).ToListAsync();
+            try
+            {
+                return Ok(await productRepository.GetProductsIfPromoted(page, numberOFProductsToDispaly));
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                 "Error retrieving data from the database");
+            }
+            //return await productRepository.GetProductsIfPromoted(page,numberOFProductsToDispaly);
         }
 
+        // GET: api/Product/id
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult<Product>> GetProduct(int id)
+        {
+            try
+            {
+                return Ok(await productRepository.GetProductById(id));
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                "Error retrieving data from the database");
+            }
+        }
 
         // GET: api/Product/name
         [HttpGet("{name}")]
         public async Task<ActionResult<Product>> GetProduct(string name)
         {
-            var product = await _context.Products.FirstAsync(p => p.ProductName == name);
-
-            if (product == null)
+            try
             {
-                return NotFound();
+                return Ok(await productRepository.GetProductByName(name));
             }
-
-            return product;
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                "Error retrieving data from the database");
+            }
         }
         [HttpGet]
         public async Task<ActionResult<Product>> GetProduct(Product prod)
         {
-            var product = await _context.Products.FirstAsync(p => p.ProductName == prod.ProductName);
-
-            if (product == null)
+            try
             {
-                return NotFound();
+                return Ok(await productRepository.GetProductByProduct(prod));
             }
-
-            return product;
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                "Error retrieving data from the database");
+            }
         }
 
         // POST: api/Product
-        [HttpPost]
-        public async Task<ActionResult<string>> CreateProductAndStock(Product product)
+       [HttpPost]
+        public async Task<ActionResult> CreateProductAndStock(Product product)
         {
-            //TODO: create a method to automaticly create a record for stocks....
+            try
+            {
+                if (product == null)
+                {
+                    return BadRequest();
+                }
+                await productRepository.CreateProductAndStock(product);
+                return StatusCode(StatusCodes.Status200OK, "Product added and stock created");
+               
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    "Error creating new employee record");
+            }
+            /*//TODO: create a method to automaticly create a record for stocks....
             _context.Products.Add(product);
             await _context.SaveChangesAsync(); 
             var existingProduct = await _context.Products.FindAsync(ProductId(product));
@@ -84,77 +163,50 @@ namespace WEBSHOP_API.Controllers
             stock.ProductId = existingProduct.ProductId;
             _context.Stocks.Add(stock);
             await _context.SaveChangesAsync();
-            return Ok();
+            return Ok();*/
 
         }
-        [HttpPost]
-        public async Task<ActionResult<string>> UpdateProduct(Product productToUpdate)
+       /*[HttpPost]
+        public async Task<ActionResult<Product>> UpdateProduct(Product productToUpdate)
         {
-            if (productToUpdate.ProductName != null && ProductExists(productToUpdate))
+            try
             {
+                if (id != )
+                    return BadRequest("Employee ID mismatch");
 
-                if (await _context.Products.FindAsync(ProductId(productToUpdate)) is Product existingProduct)
-                {
-                    try
-                    {
-                        productToUpdate.ProductId = existingProduct.ProductId;
-                        _context.Entry(existingProduct).CurrentValues.SetValues(productToUpdate);
-                        await _context.SaveChangesAsync();
-                    }
-                    catch (DbUpdateConcurrencyException)
-                    {
+                var employeeToUpdate = await employeeRepository.GetEmployee(id);
 
-                        throw;
+                if (employeeToUpdate == null)
+                    return NotFound($"Employee with Id = {id} not found");
 
-                    }
-                    return Ok();
-                }
-                else
-                {
-                    return NotFound();
-                }
-
+                return await productRepository.UpdateProduct(productToUpdate);
             }
-            else
+            catch (Exception)
             {
-                return NotFound();
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    "Error updating data");
             }
 
 
 
-        }
+        }*/
         // DELETE: api/Product/5
-        [HttpDelete("{name}")]
-        public async Task<IActionResult> DeleteProduct(string name)
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> DeleteProduct(int id)
         {
-            var product = await _context.Products.FirstAsync(p => p.ProductName == name);
-            if (product == null)
+            try
             {
-                return NotFound();
+                //add stock clear
+                await stockRepository.DeleteStock(id);
+                await productRepository.DeleteProduct(id);
+              
+                return Ok(); 
             }
-
-            _context.Products.Remove(product);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        private bool ProductExists(Product product)
-        {
-            return _context.Products.Any(e => e.ProductName == product.ProductName);
-        }
-        private int ProductId(Product product)
-        {
-            var existProduct = _context.Products.FirstOrDefault(p => p.ProductName == product.ProductName);
-            if (existProduct != null)
+            catch (Exception)
             {
-                return existProduct.ProductId;
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    "Error deleting data");
             }
-            else
-            {
-                return -1;
-            }
-
         }
     }
 }

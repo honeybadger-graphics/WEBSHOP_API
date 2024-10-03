@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System;
 using WEBSHOP_API.Helpers;
-using WEBSHOP_API.Storage;
 
 namespace WEBSHOP_API.Models
 {

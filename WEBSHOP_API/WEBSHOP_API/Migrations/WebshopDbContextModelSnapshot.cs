@@ -63,7 +63,7 @@ namespace WEBSHOP_API.Migrations
                     b.Property<string>("ProductsCounts")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("ProductsName")
+                    b.Property<string>("ProductsId")
                         .HasColumnType("TEXT");
 
                     b.HasKey("CartId");
@@ -123,7 +123,7 @@ namespace WEBSHOP_API.Migrations
                     b.ToTable("Stocks");
                 });
 
-            modelBuilder.Entity("WEBSHOP_API.Storage.StorageLogger", b =>
+            modelBuilder.Entity("WEBSHOP_API.Models.StorageLogger", b =>
                 {
                     b.Property<int>("StorageLoggerId")
                         .ValueGeneratedOnAdd()

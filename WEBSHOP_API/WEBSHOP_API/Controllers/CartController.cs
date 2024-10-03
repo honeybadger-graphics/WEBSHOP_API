@@ -16,13 +16,14 @@ namespace WEBSHOP_API.Controllers
         {
             _context = context;
         }
+
         [HttpPost]
         public async Task<ActionResult<string>> UpdateCart(CartHelper helper)
         {
             var existingCart = await _context.Carts.FindAsync(AccountId(helper.creds));
             if (existingCart != null)
             {
-                existingCart.ProductsName = helper.UpdateCart.ProductsName;
+                existingCart.ProductsId = helper.UpdateCart.ProductsId;
                 existingCart.ProductsCounts = helper.UpdateCart.ProductsCounts;
                 await _context.SaveChangesAsync();
                 return Ok();
@@ -36,7 +37,7 @@ namespace WEBSHOP_API.Controllers
             var existingCart = await _context.Carts.FindAsync(AccountId(creds));
             if (existingCart != null)
             {
-                existingCart.ProductsName = null;
+                existingCart.ProductsId = null;
                 existingCart.ProductsCounts = null;
                 await _context.SaveChangesAsync();
                 return Ok();

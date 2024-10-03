@@ -1,8 +1,9 @@
 ﻿using System.Text.Json.Serialization;
 namespace WEBSHOP_API.Models
 {
-    public class Account
+    public class AccountDTO
     {
+        [JsonIgnore]
         public int AccountId { get; set; }
         
         public string? AccountNameTitles { get; set; }
@@ -14,7 +15,8 @@ namespace WEBSHOP_API.Models
         public string? AccountEmail { get; set; }
        
         public string? AccountAddress { get; set; }
+        [JsonIgnore]
         public bool IsAdmin { get; set; } = false;
-        public Cart? Cart { get; set; }
+        public CartDTO? Cart { get; set; }
     }
 }
