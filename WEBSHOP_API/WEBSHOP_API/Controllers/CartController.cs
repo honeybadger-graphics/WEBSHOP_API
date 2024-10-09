@@ -1,11 +1,10 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using WEBSHOP_API.Helpers;
 using WEBSHOP_API.Models;
 
 namespace WEBSHOP_API.Controllers
-{
+{ //TODO: redo when account is good
     [Route("api/[controller]/[action]")]
     [ApiController]
     public class CartController : ControllerBase

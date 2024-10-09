@@ -27,6 +27,10 @@ namespace WEBSHOP_API.Repository
             productStock.ProductStocks += stockChange;
             await context.SaveChangesAsync();
         }
+        public async Task<IEnumerable<Stock>> LowStockFinder(int stockToCompereTo)
+        {
+            return await context.Stocks.Where(s => s.ProductStocks < stockToCompereTo).ToListAsync();
+        }
         public void Save()
         {
             context.SaveChanges();

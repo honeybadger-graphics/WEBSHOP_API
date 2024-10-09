@@ -1,4 +1,4 @@
-﻿namespace WEBSHOP_API.Storage
+﻿namespace WEBSHOP_API.DTOs
 {
     public class StorageLoggerDTO
     {

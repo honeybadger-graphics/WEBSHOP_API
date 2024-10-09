@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace WEBSHOP_API.Models
+namespace WEBSHOP_API.DTOs
 {
     public class CartDTO
     {
