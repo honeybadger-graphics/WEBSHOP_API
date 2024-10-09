@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Configuration;
 using WEBSHOP_API.Models;
 using WEBSHOP_API.Repository.RepositoryInterface;
@@ -64,9 +65,10 @@ namespace WEBSHOP_API.Repository
             await context.SaveChangesAsync();
         }
 
-        public async void UpdateProduct(Product productToUpdate)
+        public async Task UpdateProduct(Product productToUpdate)
         {
-            context.Entry(productToUpdate).State = EntityState.Modified;
+            var existingProduct = await context.Products.FindAsync(productToUpdate.ProductId);
+            context.Entry(existingProduct).CurrentValues.SetValues(productToUpdate);
             await context.SaveChangesAsync();
         }
 

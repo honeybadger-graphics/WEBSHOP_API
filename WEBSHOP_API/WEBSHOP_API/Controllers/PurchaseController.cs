@@ -7,7 +7,7 @@ using WEBSHOP_API.Models;
 
 
 namespace WEBSHOP_API.Controllers
-{ //TODO REWRITE and create special purchase
+{ //TODO REWRITE this whole thing is a mess
     [Route("api/[controller]/[Action]")]
     [ApiController]
     public class PurchaseController : ControllerBase
@@ -29,7 +29,7 @@ namespace WEBSHOP_API.Controllers
               
                 for (int i = 0; i < cart.ProductsId.Count; i++)
                 {
-                    logger = new StorageLogger(AccountId(account), cart.ProductsId[i], -cart.ProductsCounts[i], "Purchase");
+                    logger = new StorageLogger(AccountId(account), cart.ProductsId[i], -cart.ProductsCounts[i], "Purchase"); //WTF? Should add it but not now coz rewrites
                     var existingStock = await _context.Stocks.FirstAsync(s => s.ProductId == cart.ProductsId[i]);
                     existingStock.ProductStocks -= cart.ProductsCounts[i]; 
                     _context.SaveChanges();

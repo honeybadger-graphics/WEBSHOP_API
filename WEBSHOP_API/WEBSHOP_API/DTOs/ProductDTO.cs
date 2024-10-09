@@ -1,11 +1,10 @@
 ﻿using ServiceStack.DataAnnotations;
 using System.Text.Json.Serialization;
 
-namespace WEBSHOP_API.Models
+namespace WEBSHOP_API.DTOs
 {
     public class ProductDTO
     {
-        [JsonIgnore]
         public int ProductId { get; set; }
         public string? ProductName { get; set; }
         public List<string>? ProductDescription { get; set; }
@@ -16,10 +15,10 @@ namespace WEBSHOP_API.Models
         public int ProductPrice { get; set; }
       
         public int ProductBasePrice { get; set; }
-        [JsonIgnore]
-        public bool IsProductPromoted { get; set; }
-        [JsonIgnore]
-        public bool IsProductOnSale { get; set; }
+
+        public bool IsProductPromoted { get; set; } = false;
+
+        public bool IsProductOnSale { get; set; } = false;
       
     }
     

@@ -16,7 +16,7 @@ namespace WEBSHOP_API.Repository.RepositoryInterface
         Task<Product> GetProductByProduct(Product product);
         Task<Product> AddProduct(Product product);
         Task CreateProductAndStock(Product product);
-        void UpdateProduct(Product productToUpdate);
+        Task UpdateProduct(Product productToUpdate);
         Task DeleteProduct(int productId);
         void Save();
 

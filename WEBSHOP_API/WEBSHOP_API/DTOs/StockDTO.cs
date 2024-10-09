@@ -1,4 +1,4 @@
-﻿namespace WEBSHOP_API.Models
+﻿namespace WEBSHOP_API.DTOs
 {
     public class StockDTO
     {
