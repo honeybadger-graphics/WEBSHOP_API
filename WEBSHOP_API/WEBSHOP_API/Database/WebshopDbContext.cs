@@ -1,10 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System;
 using WEBSHOP_API.Helpers;
+using WEBSHOP_API.Models;
 
-namespace WEBSHOP_API.Models
+namespace WEBSHOP_API.Database
 {
-    public class WebshopDbContext :DbContext
+    public class WebshopDbContext : DbContext
     {
         public WebshopDbContext(DbContextOptions<WebshopDbContext> options) : base(options) { }
 
@@ -14,7 +15,5 @@ namespace WEBSHOP_API.Models
         public DbSet<StorageLogger> Logs { get; set; }
         public DbSet<Stock> Stocks { get; set; }
     }
-    
-
     
 }

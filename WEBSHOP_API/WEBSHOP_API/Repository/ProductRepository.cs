@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Configuration;
+using WEBSHOP_API.Database;
 using WEBSHOP_API.Models;
 using WEBSHOP_API.Repository.RepositoryInterface;
 

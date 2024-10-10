@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using WEBSHOP_API.DTOs;
 using WEBSHOP_API.Models;
@@ -126,6 +128,7 @@ namespace WEBSHOP_API.Controllers
         }
 
         // POST: api/Product
+        [Authorize]
         [HttpPost]
         public async Task<ActionResult> CreateProductAndStock(ProductDTO product)
         {
@@ -145,7 +148,7 @@ namespace WEBSHOP_API.Controllers
                     "Error creating new employee record");
             }
         }
-
+        [Authorize]
         [HttpPost]
         public async Task<ActionResult> UpdateProduct(ProductDTO productToUpdate)
         {
@@ -167,6 +170,7 @@ namespace WEBSHOP_API.Controllers
         }
 
         // DELETE: api/Product/5
+        [Authorize]
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeleteProduct(int id)
         {

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Client;
+using WEBSHOP_API.Database;
 using WEBSHOP_API.Helpers;
 using WEBSHOP_API.Models;
 

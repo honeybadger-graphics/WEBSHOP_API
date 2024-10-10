@@ -2,10 +2,10 @@
 
 #nullable disable
 
-namespace WEBSHOP_API.Migrations
+namespace WEBSHOP_API.Migrations.WebshopDb
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class IniCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

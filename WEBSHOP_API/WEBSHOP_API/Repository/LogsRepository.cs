@@ -1,4 +1,5 @@
-﻿using WEBSHOP_API.Models;
+﻿using WEBSHOP_API.Database;
+using WEBSHOP_API.Models;
 using WEBSHOP_API.Repository.RepositoryInterface;
 
 namespace WEBSHOP_API.Repository

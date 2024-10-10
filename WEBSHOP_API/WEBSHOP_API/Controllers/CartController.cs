@@ -1,7 +1,7 @@
 ﻿
 using Microsoft.AspNetCore.Mvc;
+using WEBSHOP_API.Database;
 using WEBSHOP_API.Helpers;
-using WEBSHOP_API.Models;
 
 namespace WEBSHOP_API.Controllers
 { //TODO: redo when account is good

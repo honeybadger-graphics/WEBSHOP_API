@@ -7,6 +7,7 @@ using ServiceStack.Logging;
 using System.Linq;
 using System.Numerics;
 using System.Reflection.Metadata;
+using WEBSHOP_API.Database;
 using WEBSHOP_API.Helpers;
 using WEBSHOP_API.Models;
 
