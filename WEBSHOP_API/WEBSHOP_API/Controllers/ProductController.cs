@@ -12,15 +12,17 @@ namespace WEBSHOP_API.Controllers
     [Route("api/[controller]/[Action]")]
     public class ProductController : ControllerBase
     {
-        private readonly IProductRepository productRepository;
-        private readonly IStockRepository stockRepository;
-        private readonly IMapper mapper;
+        private readonly IProductRepository _productRepository;
+        private readonly IStockRepository _stockRepository;
+        private readonly IMapper _mapper;
+        private readonly ILogger _logger;
 
-        public ProductController(IProductRepository productRepository, IStockRepository stockRepository, IMapper mapper)
+        public ProductController(IProductRepository productRepository, IStockRepository stockRepository, IMapper mapper, ILogger<ProductController> logger)
         {
-            this.productRepository = productRepository;
-            this.stockRepository = stockRepository;
-            this.mapper = mapper;
+            _productRepository = productRepository;
+            _stockRepository = stockRepository;
+            _mapper = mapper;
+            _logger = logger;
         }
 
         // GET: api/Product
@@ -29,7 +31,8 @@ namespace WEBSHOP_API.Controllers
         {
             try
             {
-                return Ok(mapper.Map<IEnumerable<Product>, List<ProductDTO>>(await productRepository.GetProducts(page, numberOFProductsToDispaly)));
+                _logger.LogInformation("Getting Products");
+                return Ok(_mapper.Map<IEnumerable<Product>, List<ProductDTO>>(await _productRepository.GetProducts(page, numberOFProductsToDispaly)));
             }
             catch (Exception)
             {
@@ -43,7 +46,7 @@ namespace WEBSHOP_API.Controllers
         {
             try
             {
-                return Ok(mapper.Map<IEnumerable<Product>, List<ProductDTO>>(await productRepository.GetProductsByCategory(category, page, numberOFProductsToDispaly)));
+                return Ok(_mapper.Map<IEnumerable<Product>, List<ProductDTO>>(await _productRepository.GetProductsByCategory(category, page, numberOFProductsToDispaly)));
             }
             catch (Exception)
             {
@@ -58,7 +61,7 @@ namespace WEBSHOP_API.Controllers
         {
             try
             {
-                return Ok(mapper.Map<IEnumerable<Product>, List<ProductDTO>>(await productRepository.GetProductsIfOnSale(page, numberOFProductsToDispaly)));
+                return Ok(_mapper.Map<IEnumerable<Product>, List<ProductDTO>>(await _productRepository.GetProductsIfOnSale(page, numberOFProductsToDispaly)));
             }
             catch (Exception)
             {
@@ -73,7 +76,7 @@ namespace WEBSHOP_API.Controllers
         {
             try
             {
-                return Ok(mapper.Map<IEnumerable<Product>, List<ProductDTO>>(await productRepository.GetProductsIfPromoted(page, numberOFProductsToDispaly)));
+                return Ok(_mapper.Map<IEnumerable<Product>, List<ProductDTO>>(await _productRepository.GetProductsIfPromoted(page, numberOFProductsToDispaly)));
             }
             catch (Exception)
             {
@@ -89,10 +92,12 @@ namespace WEBSHOP_API.Controllers
         {
             try
             {
-                return Ok(mapper.Map<ProductDTO>(await productRepository.GetProductById(id)));
+                throw new Exception("exection");
+                return Ok(_mapper.Map<ProductDTO>(await _productRepository.GetProductById(id)));
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                _logger.LogError(e,"Something went wrong: {error}", e.Message);
                 return StatusCode(StatusCodes.Status500InternalServerError,
                 "Error retrieving data from the database");
             }
@@ -104,21 +109,7 @@ namespace WEBSHOP_API.Controllers
         {
             try
             {
-                return Ok(mapper.Map<ProductDTO>(await productRepository.GetProductByName(name)));
-            }
-            catch (Exception)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                "Error retrieving data from the database");
-            }
-        }
-
-        [HttpGet]
-        public async Task<ActionResult> GetProduct(ProductDTO prod)
-        {
-            try
-            {
-                return Ok(mapper.Map<ProductDTO>(await productRepository.GetProductByProduct(mapper.Map<Product>(prod)))); //TODO ADD revers mapping
+                return Ok(_mapper.Map<ProductDTO>(await _productRepository.GetProductByName(name)));
             }
             catch (Exception)
             {
@@ -128,7 +119,7 @@ namespace WEBSHOP_API.Controllers
         }
 
         // POST: api/Product
-        [Authorize]
+        [Authorize(AuthenticationSchemes = "Identity.Bearer")]
         [HttpPost]
         public async Task<ActionResult> CreateProductAndStock(ProductDTO product)
         {
@@ -138,7 +129,7 @@ namespace WEBSHOP_API.Controllers
                 {
                     return BadRequest();
                 }
-                await productRepository.CreateProductAndStock(mapper.Map<Product>(product));
+                await _productRepository.CreateProductAndStock(_mapper.Map<Product>(product));
                 return StatusCode(StatusCodes.Status200OK, "Product added and stock created");
 
             }
@@ -148,18 +139,18 @@ namespace WEBSHOP_API.Controllers
                     "Error creating new employee record");
             }
         }
-        [Authorize]
+        [Authorize(AuthenticationSchemes = "Identity.Bearer")]
         [HttpPost]
         public async Task<ActionResult> UpdateProduct(ProductDTO productToUpdate)
         {
             try
             {
-                var existingProduct = await productRepository.GetProductById(productToUpdate.ProductId);
+                var existingProduct = await _productRepository.GetProductById(productToUpdate.ProductId);
                 if (existingProduct == null)
                 {
                     return NotFound("Product not found");
                 }
-                await productRepository.UpdateProduct(mapper.Map<Product>(productToUpdate));
+                await _productRepository.UpdateProduct(_mapper.Map<Product>(productToUpdate));
                 return StatusCode(StatusCodes.Status200OK, "Product updated");
             }
             catch (Exception)
@@ -170,15 +161,15 @@ namespace WEBSHOP_API.Controllers
         }
 
         // DELETE: api/Product/5
-        [Authorize]
+        [Authorize(AuthenticationSchemes = "Identity.Bearer")]
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
             try
             {
                 //add stock clear
-                await stockRepository.DeleteStock(id);
-                await productRepository.DeleteProduct(id);
+                await _stockRepository.DeleteStock(id);
+                await _productRepository.DeleteProduct(id);
                 return Ok();
             }
             catch (Exception)
