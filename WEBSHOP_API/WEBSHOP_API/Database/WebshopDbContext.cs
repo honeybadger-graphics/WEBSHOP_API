@@ -12,7 +12,6 @@ namespace WEBSHOP_API.Database
         public DbSet<Account> Accounts { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<Cart> Carts { get; set; }
-        public DbSet<StorageLogger> Logs { get; set; }
         public DbSet<Stock> Stocks { get; set; }
     }
     

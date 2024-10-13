@@ -5,30 +5,35 @@ using WEBSHOP_API.Models;
 using WEBSHOP_API.Repository;
 using WEBSHOP_API.DTOs;
 using WEBSHOP_API.Repository.RepositoryInterface;
+using Microsoft.AspNetCore.Authorization;
 
 namespace WEBSHOP_API.Controllers
 {
     [Route("api/[controller]/[action]")]
     [ApiController]
+    [Authorize (Roles = "Admin")]
     public class StocksController : ControllerBase
     {
-        private readonly IStockRepository stockRepository;
-        private readonly IMapper mapper;
-        public StocksController(IStockRepository stockRepository, IMapper mapper)
+        private readonly IStockRepository _stockRepository;
+        private readonly IMapper _mapper;
+        private readonly ILogger _logger;
+        public StocksController(IStockRepository stockRepository, IMapper mapper, ILogger logger)
         {
-            this.stockRepository = stockRepository;
-            this.mapper = mapper;
+            _stockRepository = stockRepository;
+            _mapper = mapper;
+            _logger = logger;
         }
         // GET: api/Stock/id
-        [HttpGet("{id:int}")]
+        [HttpGet("{productId:int}")]
         public async Task<ActionResult> GetStockByProductId(int productId)
         {
             try
             {
-                return Ok(mapper.Map<StockDTO>(await stockRepository.GetStockByProductId(productId)));
+                return Ok(_mapper.Map<StockDTO>(await _stockRepository.GetStockByProductId(productId)));
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                _logger.LogError(e, "Something went wrong: {error}", e.Message);
                 return StatusCode(StatusCodes.Status500InternalServerError,
                 "Error retrieving data from the database");
             }
@@ -38,10 +43,11 @@ namespace WEBSHOP_API.Controllers
         {
             try
             {
-                return Ok(mapper.Map<IEnumerable<Stock>, List<StockDTO>>(await stockRepository.LowStockFinder(stockToCompereTo)));
+                return Ok(_mapper.Map<IEnumerable<Stock>, List<StockDTO>>(await _stockRepository.LowStockFinder(stockToCompereTo)));
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                _logger.LogError(e, "Something went wrong: {error}", e.Message);
                 return StatusCode(StatusCodes.Status500InternalServerError,
                  "Error retrieving data from the database");
             }
@@ -51,11 +57,14 @@ namespace WEBSHOP_API.Controllers
         {
             try
             {
-                await stockRepository.UpdateStock(productId, stockChange);
+                await _stockRepository.UpdateStock(productId, stockChange);
+                _logger.LogInformation("Updated product stock on productId {0}", productId);
                 return StatusCode(StatusCodes.Status200OK, "Product stock changed");
+
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                _logger.LogError(e, "Updating stocks went wrong on productId {0}: {error}",productId, e.Message);
                 return StatusCode(StatusCodes.Status500InternalServerError,
                 "Error retrieving data from the database");
             }

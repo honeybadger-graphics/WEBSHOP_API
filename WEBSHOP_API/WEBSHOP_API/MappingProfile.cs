@@ -10,7 +10,6 @@ namespace WEBSHOP_API
         {
             CreateMap<Product, ProductDTO>().ReverseMap();
             CreateMap<Stock, StockDTO>().ReverseMap();
-            CreateMap<StorageLogger, StorageLoggerDTO>();
         }
     }
 }

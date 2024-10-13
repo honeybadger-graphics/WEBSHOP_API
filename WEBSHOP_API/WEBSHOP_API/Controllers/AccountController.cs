@@ -1,5 +1,9 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NuGet.Protocol;
@@ -7,6 +11,7 @@ using ServiceStack.Logging;
 using System.Linq;
 using System.Numerics;
 using System.Reflection.Metadata;
+using System.Security.Claims;
 using WEBSHOP_API.Database;
 using WEBSHOP_API.Helpers;
 using WEBSHOP_API.Models;
@@ -18,68 +23,53 @@ namespace WEBSHOP_API.Controllers
     public class AccountController : ControllerBase
     {
         private readonly WebshopDbContext _context;
+        private readonly UserDbContext _userContext;
+        private readonly UserManager<User> _userManager;
+        private readonly ILogger _logger;
 
-        public AccountController(WebshopDbContext context)
+        public AccountController(WebshopDbContext context, UserDbContext userDb, UserManager<User> userManager, ILogger<AccountController> logger )
         {
             _context = context;
+            _userContext = userDb;
+            _userManager = userManager;
+            _logger = logger;
         }
 
         // Post: api/Account/
-        [HttpPost]
-        public async Task<ActionResult> LoginRequest(LoginCreds Acc)
+        [Authorize]
+        [HttpGet]
+        public async Task<ActionResult<User>> GetUserData()
         {
-            if (AccountExists(Acc))
-            {
-                var account = await _context.Accounts.FindAsync(AccountId(Acc));
+            var claims = HttpContext.User.Claims;
+            string uId = claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
+            Console.WriteLine(uId);
+            return await _userContext.Users.FindAsync(uId);
+        }
 
-                if (account != null)
-                {
-                    return Ok();
-                   
-                }
-                else
-                {
-                    return NotFound();
-                }
-            }
-            else
+        // POST: api/Account
+        [Authorize (Roles = "Admin")]
+        [HttpPost]
+        public async Task<ActionResult> AddUserToAdmins(string userEmail)
+        {
+            try
             {
-                return NotFound();
+                var user = await _userManager.FindByEmailAsync(userEmail);
+                await _userManager.AddToRoleAsync(user, "Admin");
+                _logger.LogInformation("Adding {email} to admins.", userEmail);
+                return StatusCode(StatusCodes.Status200OK, "Succesfully added a new admin");
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Adding {email} member to admins went wrong: {error}",userEmail, e.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    "Error adding to admins record");
             }
            
-        }
-        // POST: api/Account
-        [HttpPost]
-        public async Task<ActionResult<string>> CreateAccount(LoginCreds login) //modify the return....
-        {
-            if (!AccountExists(login))
-            {
-                Account account = new()
-                {
-                    AccountEmail = login.Email,
-                    AccountPassword = login.Password
-                };
 
-                _context.Accounts.Add(account);
-                await _context.SaveChangesAsync();
-                Cart cart = new()
-                {
-                    CartId = AccountId(account),
-                };
-
-                _context.Carts.Add(cart);
-                await _context.SaveChangesAsync();
-
-                return Ok();
-            }
-            else
-            {
-               return BadRequest();
-            }
-            
         }
 
         // GET: api/Account/5
+        [Authorize]
         [HttpPost]
         public async Task<ActionResult<Account>> GetAccountInformation(LoginCreds account)
         {
@@ -94,43 +84,8 @@ namespace WEBSHOP_API.Controllers
             return existingAccount;
         }
 
-       
-        [HttpPost]
-        public async Task<ActionResult> EscalateAccount(AccountEscalatorHelper accounts)
-        {
-            if (accounts.Admin.Email != null && AccountExists(accounts.Admin) && AccountExists(accounts.AccountToEscalateId))
-            {
-                var account = await _context.Accounts.FindAsync(AccountId(accounts.Admin));
-                if (account.IsAdmin)
-                {
-                    var existingAccount = await _context.Accounts.FindAsync(accounts.AccountToEscalateId);
 
-                    try
-                    {
-                        existingAccount.IsAdmin = true;  // not going to be null cos AccountExists(accounts.Admin) !!
-                        await _context.SaveChangesAsync();
-                    }
-                    catch (DbUpdateConcurrencyException)
-                    {
-
-                        throw;
-
-                    }
-                    return Ok();
-                }
-                else
-                {
-                    return NoContent();
-                }
-
-            }
-            else
-            {
-                return NoContent();
-            }
-
-        }
-
+        [Authorize]
         [HttpPost]
         public async Task<ActionResult<Account>> UpdateAccount(Account accountToUpdate)
         {
@@ -168,7 +123,7 @@ namespace WEBSHOP_API.Controllers
 
         }
 
-        // DELETE: api/Account/5
+        [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAccount(int id)
         {

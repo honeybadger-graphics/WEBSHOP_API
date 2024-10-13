@@ -25,12 +25,12 @@ namespace WEBSHOP_API.Controllers
         {
             var existingAccount = await _context.Accounts.FindAsync(AccountId(account));
             var cart = await _context.Carts.FindAsync(existingAccount.Cart.CartId);
-            StorageLogger logger; 
+            //StorageLogger logger; 
             if (existingAccount != null && cart != null) {
               
                 for (int i = 0; i < cart.ProductsId.Count; i++)
                 {
-                    logger = new StorageLogger(AccountId(account), cart.ProductsId[i], -cart.ProductsCounts[i], "Purchase"); //WTF? Should add it but not now coz rewrites
+                    //logger = new StorageLogger(AccountId(account), cart.ProductsId[i], -cart.ProductsCounts[i], "Purchase"); //WTF? Should add it but not now coz rewrites
                     var existingStock = await _context.Stocks.FirstAsync(s => s.ProductId == cart.ProductsId[i]);
                     existingStock.ProductStocks -= cart.ProductsCounts[i]; 
                     _context.SaveChanges();
