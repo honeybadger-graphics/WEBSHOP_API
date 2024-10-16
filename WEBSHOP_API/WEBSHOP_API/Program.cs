@@ -1,15 +1,8 @@
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.CodeAnalysis.Options;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.OpenApi.Models;
-using ServiceStack;
-using System.Security.Claims;
 using WEBSHOP_API;
-using WEBSHOP_API.Controllers;
 using WEBSHOP_API.Database;
-using WEBSHOP_API.Extensions;
 using WEBSHOP_API.Repository;
 using WEBSHOP_API.Repository.RepositoryInterface;
 var builder = WebApplication.CreateBuilder(args);
@@ -53,6 +46,8 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 builder.Services.AddScoped<IProductRepository,ProductRepository>();
 builder.Services.AddScoped<IStockRepository, StockRepository>();
+builder.Services.AddScoped<ICartRepository, CartRepository>();
+builder.Services.AddScoped<IUserDataRepository, UserDataRepository>();
 builder.Services.AddAuthorization();
 builder.Services.AddAuthentication(options =>
 {
@@ -60,7 +55,7 @@ builder.Services.AddAuthentication(options =>
     options.DefaultAuthenticateScheme = IdentityConstants.BearerScheme;
 }).AddBearerToken(IdentityConstants.BearerScheme);
 //builder.Services.AddAuthentication().AddBearerToken(IdentityConstants.BearerScheme).AddCookie(IdentityConstants.ApplicationScheme);
-builder.Services.AddIdentityCore<User>().AddRoles<IdentityRole>().AddEntityFrameworkStores<UserDbContext>().AddApiEndpoints();
+builder.Services.AddIdentityCore<IdentityUser>().AddRoles<IdentityRole>().AddEntityFrameworkStores<UserDbContext>().AddApiEndpoints();
 var app = builder.Build();
 app.UseAuthentication();
 app.UseAuthorization();
@@ -70,11 +65,10 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-    //app.ApplyMigration();
 }
 app.UseHttpsRedirection();
 app.MapControllers();
-app.MapGroup("/api/User").MapIdentityApi<User>();
+app.MapGroup("/api/User").MapIdentityApi<IdentityUser>();
 using (var scope = app.Services.CreateScope()) {
  var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
     var roles = new[] {"Admin"/*,"Customer"*/ };
@@ -86,22 +80,18 @@ using (var scope = app.Services.CreateScope()) {
     }
 }
 //Keep it commented for now
-/*using (var scope = app.Services.CreateScope())
+using (var scope = app.Services.CreateScope())
 {
-    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
-    string email = "email";
-    string password = "password";
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
+    string email = "admin@admin.com";
+    string password = "String@123";
     if (await userManager.FindByEmailAsync(email) == null) {
-        var user = new User();
+        var user = new IdentityUser();
         user.Email = email;
         user.UserName = email;
         await userManager.CreateAsync(user, password);
         await userManager.AddToRoleAsync(user,"Admin");
         //await userManager.AddToRoleAsync(user, "Customer");
     }
-}*/
-app.MapGroup("/api/User").MapGet("/me", async (ClaimsPrincipal claims, UserDbContext context)=> {
-    string uId = claims.Claims.First(c => c.Type ==ClaimTypes.NameIdentifier).Value;
-    return await context.Users.FindAsync(uId);
-}).RequireAuthorization();
+}
 app.Run();

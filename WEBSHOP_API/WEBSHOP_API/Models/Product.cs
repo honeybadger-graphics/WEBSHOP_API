@@ -1,7 +1,4 @@
-﻿using ServiceStack.DataAnnotations;
-using System.Text.Json.Serialization;
-
-namespace WEBSHOP_API.Models
+﻿namespace WEBSHOP_API.Models
 {
     public class Product
     {

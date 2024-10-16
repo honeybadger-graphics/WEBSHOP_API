@@ -1,10 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Client;
+using System.Security.Claims;
 using WEBSHOP_API.Database;
-using WEBSHOP_API.Helpers;
-using WEBSHOP_API.Models;
+using WEBSHOP_API.Repository.RepositoryInterface;
 
 
 namespace WEBSHOP_API.Controllers
@@ -14,66 +12,78 @@ namespace WEBSHOP_API.Controllers
     public class PurchaseController : ControllerBase
     {
         private readonly WebshopDbContext _context;
+        private readonly ILogger _logger;
+        private readonly ICartRepository _cartRepository;
+        private readonly IStockRepository _stockRepository;
+        private readonly IUserDataRepository _userDataRepository;
+        private readonly IProductRepository _productRepository;
 
-        public PurchaseController(WebshopDbContext context)
+        public PurchaseController(WebshopDbContext context, ILogger<PurchaseController> logger, ICartRepository cartRepository, IStockRepository stockRepository, IUserDataRepository userDataRepository, IProductRepository productRepository)
         {
             _context = context;
+            _logger = logger;
+            _cartRepository = cartRepository;
+            _stockRepository = stockRepository;
+            _userDataRepository = userDataRepository;
+            _productRepository = productRepository;
+            
         }
+        [Authorize]
         [HttpPost]
-        //rewrite this...... take logincreds not account
-        public async Task<ActionResult> MakePurchase(Account account)
+        public async Task<ActionResult<int>> StartPurchase()
         {
-            var existingAccount = await _context.Accounts.FindAsync(AccountId(account));
-            var cart = await _context.Carts.FindAsync(existingAccount.Cart.CartId);
-            //StorageLogger logger; 
-            if (existingAccount != null && cart != null) {
-              
-                for (int i = 0; i < cart.ProductsId.Count; i++)
+            try
+            {
+                var claims = HttpContext.User.Claims;
+                string uId = claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
+                var result = await _cartRepository.GetCartVaule(uId);
+                return Ok(result);
+
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Something went wrong: {error}", e.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                 "Error retrieving data from the database");
+            }
+
+        }
+        [Authorize]
+        [HttpPost]
+        public async Task<ActionResult> ConfirmPurchase()
+        {
+            try
+            {
+                Random rnd = new Random();
+                var claims = HttpContext.User.Claims;
+                string uId = claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
+                var cart = await _cartRepository.CartDataById(uId);
+                var userData = await _userDataRepository.GetUserDataById(uId);
+
+                if (cart.ProductsId != null)
                 {
-                    //logger = new StorageLogger(AccountId(account), cart.ProductsId[i], -cart.ProductsCounts[i], "Purchase"); //WTF? Should add it but not now coz rewrites
-                    var existingStock = await _context.Stocks.FirstAsync(s => s.ProductId == cart.ProductsId[i]);
-                    existingStock.ProductStocks -= cart.ProductsCounts[i]; 
-                    _context.SaveChanges();
+                   int random = rnd.Next(0, cart.ProductsId.Count);
+                    for (int i = 0; i < cart.ProductsId.Count; i++)
+                    {
+                        await _stockRepository.UpdateStock(cart.ProductsId[i], -cart.ProductsCounts[i]);
 
+                    }
+                    string productCategory = await _productRepository.GetProductCategoryById(cart.ProductsId[random]);
+                    userData.UserLastPurchaseCategory = productCategory;
+                    await _userDataRepository.UpdateUserData(userData);
+                    return StatusCode(StatusCodes.Status200OK, "Succesful purchase!");
                 }
-                cart.ProductsId = null; 
-                cart.ProductsCounts = null;
-                _context.SaveChanges();
-                return Ok();
+                else {
+                    return StatusCode(StatusCodes.Status400BadRequest, "Somethig is wrong with your cart.");
+                }
 
             }
-            else { 
-                return BadRequest(); 
-            }
-
-        }
-
-
-        private int AccountId(Account account)
-        {
-            var existAccount = _context.Accounts.FirstOrDefault(a => a.AccountEmail == account.AccountEmail && a.AccountPassword == account.AccountPassword);
-            if (existAccount != null)
+            catch (Exception e)
             {
-                return existAccount.AccountId;
+                _logger.LogError(e, "Something went wrong: {error}", e.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                 "Something went wrong while confirming your purchase.");
             }
-            else
-            {
-                return -1;
-            }
-
-        }
-        private int ProductId(string productName)
-        {
-            var existProduct = _context.Products.FirstOrDefault(p => p.ProductName == productName);
-            if (existProduct != null)
-            {
-                return existProduct.ProductId;
-            }
-            else
-            {
-                return -1;
-            }
-
         }
     }
 }

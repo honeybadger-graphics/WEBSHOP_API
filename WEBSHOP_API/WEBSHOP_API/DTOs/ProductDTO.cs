@@ -1,7 +1,4 @@
-﻿using ServiceStack.DataAnnotations;
-using System.Text.Json.Serialization;
-
-namespace WEBSHOP_API.DTOs
+﻿namespace WEBSHOP_API.DTOs
 {
     public class ProductDTO
     {

@@ -1,8 +1,6 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using WEBSHOP_API.Models;
-using WEBSHOP_API.Repository;
 using WEBSHOP_API.DTOs;
 using WEBSHOP_API.Repository.RepositoryInterface;
 using Microsoft.AspNetCore.Authorization;
@@ -17,7 +15,7 @@ namespace WEBSHOP_API.Controllers
         private readonly IStockRepository _stockRepository;
         private readonly IMapper _mapper;
         private readonly ILogger _logger;
-        public StocksController(IStockRepository stockRepository, IMapper mapper, ILogger logger)
+        public StocksController(IStockRepository stockRepository, IMapper mapper, ILogger<StocksController> logger)
         {
             _stockRepository = stockRepository;
             _mapper = mapper;

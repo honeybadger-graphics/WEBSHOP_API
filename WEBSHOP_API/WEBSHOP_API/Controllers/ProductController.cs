@@ -1,9 +1,10 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using WEBSHOP_API.DTOs;
 using WEBSHOP_API.Models;
+using WEBSHOP_API.Repository;
 using WEBSHOP_API.Repository.RepositoryInterface;
 
 namespace WEBSHOP_API.Controllers
@@ -16,13 +17,15 @@ namespace WEBSHOP_API.Controllers
         private readonly IStockRepository _stockRepository;
         private readonly IMapper _mapper;
         private readonly ILogger _logger;
+        private readonly IUserDataRepository _userDataRepository;
 
-        public ProductController(IProductRepository productRepository, IStockRepository stockRepository, IMapper mapper, ILogger<ProductController> logger)
+        public ProductController(IProductRepository productRepository, IStockRepository stockRepository, IMapper mapper, ILogger<ProductController> logger, IUserDataRepository userDataRepository)
         {
             _productRepository = productRepository;
             _stockRepository = stockRepository;
             _mapper = mapper;
             _logger = logger;
+            _userDataRepository = userDataRepository;
         }
 
         // GET: api/Product
@@ -118,6 +121,25 @@ namespace WEBSHOP_API.Controllers
             catch (Exception e)
             {
                 _logger.LogError(e, "Getting a by name product went wrong: {error}", e.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                "Error retrieving data from the database");
+            }
+        }
+        [Authorize]
+        [HttpGet]
+        public async Task<ActionResult> GetReccomendedProducts()
+        {
+            try
+            {
+                var claims = HttpContext.User.Claims;
+                string uId = claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
+                var result = await _userDataRepository.GetUserDataById(uId);
+                var products = await _productRepository.GetProductsReccomendation(result.UserLastPurchaseCategory);
+                return Ok(_mapper.Map<IEnumerable<ProductDTO>>(products));
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Getting reccomended products went wrong: {error}", e.Message);
                 return StatusCode(StatusCodes.Status500InternalServerError,
                 "Error retrieving data from the database");
             }
