@@ -8,11 +8,10 @@ namespace WEBSHOP_API
     {
         public MappingProfile()
         {
-            CreateMap<Product, ProductDTO>();
-            CreateMap<ProductDTO, Product>();
-            CreateMap<Stock, StockDTO>();
-            CreateMap<StockDTO, Stock>();
-            CreateMap<StorageLogger, StorageLoggerDTO>();
+            CreateMap<Product, ProductDTO>().ReverseMap();
+            CreateMap<Stock, StockDTO>().ReverseMap();
+            CreateMap<UserData, UserDataDTO>().ReverseMap();
+            CreateMap<Cart, CartDTO>().ReverseMap();
         }
     }
 }

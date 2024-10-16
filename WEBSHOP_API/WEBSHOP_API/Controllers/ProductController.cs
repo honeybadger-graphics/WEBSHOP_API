@@ -1,7 +1,10 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using WEBSHOP_API.DTOs;
 using WEBSHOP_API.Models;
+using WEBSHOP_API.Repository;
 using WEBSHOP_API.Repository.RepositoryInterface;
 
 namespace WEBSHOP_API.Controllers
@@ -10,15 +13,19 @@ namespace WEBSHOP_API.Controllers
     [Route("api/[controller]/[Action]")]
     public class ProductController : ControllerBase
     {
-        private readonly IProductRepository productRepository;
-        private readonly IStockRepository stockRepository;
-        private readonly IMapper mapper;
+        private readonly IProductRepository _productRepository;
+        private readonly IStockRepository _stockRepository;
+        private readonly IMapper _mapper;
+        private readonly ILogger _logger;
+        private readonly IUserDataRepository _userDataRepository;
 
-        public ProductController(IProductRepository productRepository, IStockRepository stockRepository, IMapper mapper)
+        public ProductController(IProductRepository productRepository, IStockRepository stockRepository, IMapper mapper, ILogger<ProductController> logger, IUserDataRepository userDataRepository)
         {
-            this.productRepository = productRepository;
-            this.stockRepository = stockRepository;
-            this.mapper = mapper;
+            _productRepository = productRepository;
+            _stockRepository = stockRepository;
+            _mapper = mapper;
+            _logger = logger;
+            _userDataRepository = userDataRepository;
         }
 
         // GET: api/Product
@@ -27,10 +34,12 @@ namespace WEBSHOP_API.Controllers
         {
             try
             {
-                return Ok(mapper.Map<IEnumerable<Product>, List<ProductDTO>>(await productRepository.GetProducts(page, numberOFProductsToDispaly)));
+                
+                return Ok(_mapper.Map<IEnumerable<Product>, List<ProductDTO>>(await _productRepository.GetProducts(page, numberOFProductsToDispaly)));
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                _logger.LogError(e, "Something went wrong: {error}", e.Message);
                 return StatusCode(StatusCodes.Status500InternalServerError,
                  "Error retrieving data from the database");
             }
@@ -41,10 +50,11 @@ namespace WEBSHOP_API.Controllers
         {
             try
             {
-                return Ok(mapper.Map<IEnumerable<Product>, List<ProductDTO>>(await productRepository.GetProductsByCategory(category, page, numberOFProductsToDispaly)));
+                return Ok(_mapper.Map<IEnumerable<Product>, List<ProductDTO>>(await _productRepository.GetProductsByCategory(category, page, numberOFProductsToDispaly)));
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                _logger.LogError(e, "Something went wrong: {error}", e.Message);
                 return StatusCode(StatusCodes.Status500InternalServerError,
                  "Error retrieving data from the database");
             }
@@ -56,10 +66,11 @@ namespace WEBSHOP_API.Controllers
         {
             try
             {
-                return Ok(mapper.Map<IEnumerable<Product>, List<ProductDTO>>(await productRepository.GetProductsIfOnSale(page, numberOFProductsToDispaly)));
+                return Ok(_mapper.Map<IEnumerable<Product>, List<ProductDTO>>(await _productRepository.GetProductsIfOnSale(page, numberOFProductsToDispaly)));
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                _logger.LogError(e, "Something went wrong: {error}", e.Message);
                 return StatusCode(StatusCodes.Status500InternalServerError,
                  "Error retrieving data from the database");
             }
@@ -71,10 +82,11 @@ namespace WEBSHOP_API.Controllers
         {
             try
             {
-                return Ok(mapper.Map<IEnumerable<Product>, List<ProductDTO>>(await productRepository.GetProductsIfPromoted(page, numberOFProductsToDispaly)));
+                return Ok(_mapper.Map<IEnumerable<Product>, List<ProductDTO>>(await _productRepository.GetProductsIfPromoted(page, numberOFProductsToDispaly)));
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                _logger.LogError(e, "Something went wrong: {error}", e.Message);
                 return StatusCode(StatusCodes.Status500InternalServerError,
                  "Error retrieving data from the database");
             }
@@ -87,10 +99,12 @@ namespace WEBSHOP_API.Controllers
         {
             try
             {
-                return Ok(mapper.Map<ProductDTO>(await productRepository.GetProductById(id)));
+                //throw new Exception("exection");
+                return Ok(_mapper.Map<ProductDTO>(await _productRepository.GetProductById(id)));
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                _logger.LogError(e, "Getting a by id product went wrong: {error}", e.Message);
                 return StatusCode(StatusCodes.Status500InternalServerError,
                 "Error retrieving data from the database");
             }
@@ -102,30 +116,37 @@ namespace WEBSHOP_API.Controllers
         {
             try
             {
-                return Ok(mapper.Map<ProductDTO>(await productRepository.GetProductByName(name)));
+                return Ok(_mapper.Map<ProductDTO>(await _productRepository.GetProductByName(name)));
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                _logger.LogError(e, "Getting a by name product went wrong: {error}", e.Message);
                 return StatusCode(StatusCodes.Status500InternalServerError,
                 "Error retrieving data from the database");
             }
         }
-
+        [Authorize]
         [HttpGet]
-        public async Task<ActionResult> GetProduct(ProductDTO prod)
+        public async Task<ActionResult> GetReccomendedProducts()
         {
             try
             {
-                return Ok(mapper.Map<ProductDTO>(await productRepository.GetProductByProduct(mapper.Map<Product>(prod)))); //TODO ADD revers mapping
+                var claims = HttpContext.User.Claims;
+                string uId = claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
+                var result = await _userDataRepository.GetUserDataById(uId);
+                var products = await _productRepository.GetProductsReccomendation(result.UserLastPurchaseCategory);
+                return Ok(_mapper.Map<IEnumerable<ProductDTO>>(products));
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                _logger.LogError(e, "Getting reccomended products went wrong: {error}", e.Message);
                 return StatusCode(StatusCodes.Status500InternalServerError,
                 "Error retrieving data from the database");
             }
         }
 
         // POST: api/Product
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<ActionResult> CreateProductAndStock(ProductDTO product)
         {
@@ -135,50 +156,57 @@ namespace WEBSHOP_API.Controllers
                 {
                     return BadRequest();
                 }
-                await productRepository.CreateProductAndStock(mapper.Map<Product>(product));
+                await _productRepository.CreateProductAndStock(_mapper.Map<Product>(product));
+                _logger.LogInformation("Created a product and stock");
                 return StatusCode(StatusCodes.Status200OK, "Product added and stock created");
 
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                _logger.LogError(e, "Creating a product went wrong: {error}", e.Message);
                 return StatusCode(StatusCodes.Status500InternalServerError,
-                    "Error creating new employee record");
+                    "Error creating new product record");
             }
         }
-
+        [Authorize (Roles = "Admin")]
         [HttpPost]
         public async Task<ActionResult> UpdateProduct(ProductDTO productToUpdate)
         {
             try
             {
-                var existingProduct = await productRepository.GetProductById(productToUpdate.ProductId);
+                var existingProduct = await _productRepository.GetProductById(productToUpdate.ProductId);
                 if (existingProduct == null)
                 {
                     return NotFound("Product not found");
                 }
-                await productRepository.UpdateProduct(mapper.Map<Product>(productToUpdate));
+                await _productRepository.UpdateProduct(_mapper.Map<Product>(productToUpdate));
+                _logger.LogInformation("Updating product with id: {productId}", existingProduct.ProductId);
                 return StatusCode(StatusCodes.Status200OK, "Product updated");
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                _logger.LogError(e, "Updating a product went wrong: {error}", e.Message);
                 return StatusCode(StatusCodes.Status500InternalServerError,
                     "Error updating data");
             }
         }
 
         // DELETE: api/Product/5
+        [Authorize (Roles = "Admin")]
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
             try
             {
+                _logger.LogInformation("Deleting product with id: {productId}",id);
                 //add stock clear
-                await stockRepository.DeleteStock(id);
-                await productRepository.DeleteProduct(id);
+                await _stockRepository.DeleteStock(id);
+                await _productRepository.DeleteProduct(id);
                 return Ok();
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                _logger.LogError(e, "Deleting a product went wrong: {error}", e.Message);
                 return StatusCode(StatusCodes.Status500InternalServerError,
                     "Error deleting data");
             }
