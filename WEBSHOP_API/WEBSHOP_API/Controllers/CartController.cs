@@ -15,14 +15,12 @@ namespace WEBSHOP_API.Controllers
     [ApiController]
     public class CartController : ControllerBase
     {
-        private readonly WebshopDbContext _context;
         private readonly ICartRepository _cartRepository;
         private readonly IMapper _mapper;
         private readonly ILogger _logger;
 
-        public CartController(WebshopDbContext context, ICartRepository cartRepository, IMapper mapper, ILogger<CartController> logger)
+        public CartController(ICartRepository cartRepository, IMapper mapper, ILogger<CartController> logger)
         {
-            _context = context;
             _cartRepository = cartRepository;
             _mapper = mapper;
             _logger = logger;
@@ -35,7 +33,7 @@ namespace WEBSHOP_API.Controllers
             try
             {
                 var claims = HttpContext.User.Claims;
-                string uId = claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
+                var uId = claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
                 return Ok(_mapper.Map<CartDTO>(await _cartRepository.CartDataById(uId)));
             }
             catch (Exception e) {
@@ -51,7 +49,7 @@ namespace WEBSHOP_API.Controllers
             try
             {
                 var claims = HttpContext.User.Claims;
-                string uId = claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
+                var uId = claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
                 await _cartRepository.CreateCart(uId);
                 return StatusCode(StatusCodes.Status200OK, "Cart created!");
             }
@@ -69,7 +67,7 @@ namespace WEBSHOP_API.Controllers
             try
             {
                 var claims = HttpContext.User.Claims;
-                string uId = claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
+                var uId = claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
                 cartDTO.CartId = uId;
                 await _cartRepository.UpdateCart(_mapper.Map<Cart>(cartDTO));
                 return StatusCode(StatusCodes.Status200OK, "Cart updated!");
@@ -89,7 +87,7 @@ namespace WEBSHOP_API.Controllers
             try
             {
                 var claims = HttpContext.User.Claims;
-                string uId = claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
+                var uId = claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
                 await _cartRepository.ClearCart(uId);
                 return StatusCode(StatusCodes.Status200OK, "Cart cleared!");
             }
@@ -107,7 +105,7 @@ namespace WEBSHOP_API.Controllers
             try
             {
                 var claims = HttpContext.User.Claims;
-                string uId = claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
+                var uId = claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
                 await _cartRepository.DeleteCart(uId);
                 return StatusCode(StatusCodes.Status200OK, "Cart deleted!");
             }

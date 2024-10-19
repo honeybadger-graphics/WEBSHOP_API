@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using ServiceStack;
+using System.Globalization;
 using WEBSHOP_API;
 using WEBSHOP_API.Database;
 using WEBSHOP_API.Repository;
@@ -13,7 +15,15 @@ builder.Services.AddDbContext<WebshopDbContext>(options =>
         options.UseSqlite(configuration.GetConnectionString("ProductDBConnection")));
 builder.Services.AddDbContext<UserDbContext>(options =>
         options.UseSqlite(configuration.GetConnectionString("UserDBConnection")));
-         
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("CorsPolicy",
+        builder => builder
+            .AllowAnyMethod()
+            .AllowCredentials()
+            .SetIsOriginAllowed((host) => true)
+            .AllowAnyHeader());
+});
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -59,6 +69,7 @@ builder.Services.AddIdentityCore<IdentityUser>().AddRoles<IdentityRole>().AddEnt
 var app = builder.Build();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseCors("CorsPolicy");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -69,6 +80,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.MapControllers();
 app.MapGroup("/api/User").MapIdentityApi<IdentityUser>();
+#region DataSeeding
 using (var scope = app.Services.CreateScope()) {
  var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
     var roles = new[] {"Admin"/*,"Customer"*/ };
@@ -79,12 +91,12 @@ using (var scope = app.Services.CreateScope()) {
         }
     }
 }
-//Keep it commented for now
-using (var scope = app.Services.CreateScope())
+//Keep it commented for now 
+/*using (var scope = app.Services.CreateScope())
 {
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
-    string email = "admin@admin.com";
-    string password = "String@123";
+    string email = "";
+    string password = "";
     if (await userManager.FindByEmailAsync(email) == null) {
         var user = new IdentityUser();
         user.Email = email;
@@ -93,5 +105,11 @@ using (var scope = app.Services.CreateScope())
         await userManager.AddToRoleAsync(user,"Admin");
         //await userManager.AddToRoleAsync(user, "Customer");
     }
-}
+}*/
+#endregion
+/*app.Use(async (context, next) =>
+{
+    context.Response.Headers.AccessControlAllowOrigin = "https://localhost:4200 , https://localhost:7161";
+    await next(context);
+});*/
 app.Run();

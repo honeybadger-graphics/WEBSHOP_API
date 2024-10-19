@@ -34,7 +34,6 @@ namespace WEBSHOP_API.Controllers
         {
             try
             {
-                
                 return Ok(_mapper.Map<IEnumerable<Product>, List<ProductDTO>>(await _productRepository.GetProducts(page, numberOFProductsToDispaly)));
             }
             catch (Exception e)
@@ -132,7 +131,7 @@ namespace WEBSHOP_API.Controllers
             try
             {
                 var claims = HttpContext.User.Claims;
-                string uId = claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
+                var uId = claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
                 var result = await _userDataRepository.GetUserDataById(uId);
                 var products = await _productRepository.GetProductsReccomendation(result.UserLastPurchaseCategory);
                 return Ok(_mapper.Map<IEnumerable<ProductDTO>>(products));

@@ -8,8 +8,8 @@ namespace WEBSHOP_API.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public string CartId { get; set; }
-        public List<int>? ProductsId { get; set; }
-        public List<int>? ProductsCounts { get; set; }
+        public List<int> ProductIds { get; set; } = [];
+        public List<int> ProductCount { get; set; } = [];
     }
 
 }

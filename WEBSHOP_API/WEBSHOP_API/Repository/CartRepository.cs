@@ -62,8 +62,8 @@ namespace WEBSHOP_API.Repository
             Cart clearCart = new Cart();
             var existingCart = await _context.Carts.FindAsync(uId);
             clearCart.CartId = existingCart.CartId;
-            clearCart.ProductsId = null;
-            clearCart.ProductsCounts = null;
+            clearCart.ProductIds = null;
+            clearCart.ProductCount = null;
             _context.Entry(existingCart).CurrentValues.SetValues(clearCart);
             _context.SaveChanges();
         }
@@ -79,10 +79,10 @@ namespace WEBSHOP_API.Repository
             int value = 0;
             var existingCart = await _context.Carts.FindAsync(uId);
             Product product = new Product();
-            for (int i = 0; i < existingCart.ProductsId.Count; i++)
+            for (int i = 0; i < existingCart.ProductIds.Count; i++)
             {
-                product = await _context.Products.FindAsync(existingCart.ProductsId[i]);
-                value += product.ProductPrice * existingCart.ProductsCounts[i];
+                product = await _context.Products.FindAsync(existingCart.ProductIds[i]);
+                value += product.ProductPrice * existingCart.ProductCount[i];
 
             }
             return value;
