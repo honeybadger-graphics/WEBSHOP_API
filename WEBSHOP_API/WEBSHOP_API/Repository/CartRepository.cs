@@ -42,10 +42,8 @@ namespace WEBSHOP_API.Repository
             return await _context.Carts.FindAsync(uId);
         }
 
-        public async Task CreateCart(string uId)
+        public async Task CreateCart(Cart cart)
         {
-            Cart cart = new Cart();
-            cart.CartId = uId;
             await _context.Carts.AddAsync(cart);
             await _context.SaveChangesAsync();
         }

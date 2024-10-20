@@ -43,14 +43,14 @@ namespace WEBSHOP_API.Controllers
             }
         }
         [Authorize]
-        [HttpGet]
-        public async Task<ActionResult> CreateCart()
+        [HttpPost]
+        public async Task<ActionResult> CreateCart(CartDTO cartDTO)
         {
             try
             {
                 var claims = HttpContext.User.Claims;
                 var uId = claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
-                await _cartRepository.CreateCart(uId);
+                await _cartRepository.CreateCart(_mapper.Map<Cart>(cartDTO));
                 return StatusCode(StatusCodes.Status200OK, "Cart created!");
             }
             catch (Exception e)
