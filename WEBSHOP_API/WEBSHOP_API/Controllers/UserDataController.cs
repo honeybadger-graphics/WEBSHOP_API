@@ -88,7 +88,7 @@ namespace WEBSHOP_API.Controllers
         }
         [Authorize]
         [HttpPost]
-        public async Task<ActionResult<UserDataDTO>> CreateUserData(UserDataDTO userDataDTO)
+        public async Task<ActionResult> CreateUserData(UserDataDTO userDataDTO)
         {
             try
             {
@@ -111,7 +111,7 @@ namespace WEBSHOP_API.Controllers
 
         [Authorize]
         [HttpPost]
-        public async Task<ActionResult<UserDataDTO>> UpdateUserData(UserDataDTO userDataDTO)
+        public async Task<ActionResult> UpdateUserData(UserDataDTO userDataDTO)
         {
             try
             {

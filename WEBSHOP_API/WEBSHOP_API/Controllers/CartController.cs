@@ -6,6 +6,7 @@ using System.Security.Claims;
 using WEBSHOP_API.Database;
 using WEBSHOP_API.DTOs;
 using WEBSHOP_API.Models;
+using WEBSHOP_API.Repository;
 using WEBSHOP_API.Repository.RepositoryInterface;
 
 
@@ -50,7 +51,9 @@ namespace WEBSHOP_API.Controllers
             {
                 var claims = HttpContext.User.Claims;
                 var uId = claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
-                await _cartRepository.CreateCart(_mapper.Map<Cart>(cartDTO));
+                cartDTO.CartId = uId;
+                var cartData = _mapper.Map<Cart>(cartDTO);
+                await _cartRepository.CreateCart(cartData);
                 return StatusCode(StatusCodes.Status200OK, "Cart created!");
             }
             catch (Exception e)
