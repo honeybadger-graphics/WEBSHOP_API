@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using WEBSHOP_API.Database;
+using WEBSHOP_API.DTOs;
 using WEBSHOP_API.Repository.RepositoryInterface;
 
 
@@ -11,32 +12,32 @@ namespace WEBSHOP_API.Controllers
     [ApiController]
     public class PurchaseController : ControllerBase
     {
-        private readonly WebshopDbContext _context;
         private readonly ILogger _logger;
         private readonly ICartRepository _cartRepository;
         private readonly IStockRepository _stockRepository;
         private readonly IUserDataRepository _userDataRepository;
         private readonly IProductRepository _productRepository;
 
-        public PurchaseController(WebshopDbContext context, ILogger<PurchaseController> logger, ICartRepository cartRepository, IStockRepository stockRepository, IUserDataRepository userDataRepository, IProductRepository productRepository)
+        public PurchaseController(ILogger<PurchaseController> logger, ICartRepository cartRepository, IStockRepository stockRepository, IUserDataRepository userDataRepository, IProductRepository productRepository)
         {
-            _context = context;
             _logger = logger;
             _cartRepository = cartRepository;
             _stockRepository = stockRepository;
             _userDataRepository = userDataRepository;
             _productRepository = productRepository;
-            
         }
+
         [Authorize]
         [HttpPost]
-        public async Task<ActionResult<int>> StartPurchase()
+        public async Task<IActionResult> StartPurchase()
         {
             try
             {
+                var result = new CartValueDTO();
                 var claims = HttpContext.User.Claims;
-                string uId = claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
-                var result = await _cartRepository.GetCartVaule(uId);
+                var uId = claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
+                result.Value = await _cartRepository.GetCartVaule(uId);
+                result.CurrencyCode = "HUF";
                 return Ok(result);
 
             }
@@ -46,35 +47,35 @@ namespace WEBSHOP_API.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError,
                  "Error retrieving data from the database");
             }
-
         }
+
         [Authorize]
         [HttpPost]
-        public async Task<ActionResult> ConfirmPurchase()
+        public async Task<IActionResult> ConfirmPurchase()
         {
             try
             {
-                Random rnd = new Random();
+                var rnd = new Random();
                 var claims = HttpContext.User.Claims;
-                string uId = claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
+                var uId = claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
                 var cart = await _cartRepository.CartDataById(uId);
                 var userData = await _userDataRepository.GetUserDataById(uId);
 
-                if (cart.ProductsId != null)
+                if (cart.ProductIds.Count != 0)
                 {
-                   int random = rnd.Next(0, cart.ProductsId.Count);
-                    for (int i = 0; i < cart.ProductsId.Count; i++)
+                   int random = rnd.Next(0, cart.ProductIds.Count);
+                    for (int i = 0; i < cart.ProductIds.Count; i++)
                     {
-                        await _stockRepository.UpdateStock(cart.ProductsId[i], -cart.ProductsCounts[i]);
+                        await _stockRepository.UpdateStock(cart.ProductIds[i], -cart.ProductCount[i]);
 
                     }
-                    string productCategory = await _productRepository.GetProductCategoryById(cart.ProductsId[random]);
+                    string productCategory = await _productRepository.GetProductCategoryById(cart.ProductIds[random]);
                     userData.UserLastPurchaseCategory = productCategory;
                     await _userDataRepository.UpdateUserData(userData);
-                    return StatusCode(StatusCodes.Status200OK, "Succesful purchase!");
+                    return NoContent();
                 }
                 else {
-                    return StatusCode(StatusCodes.Status400BadRequest, "Somethig is wrong with your cart.");
+                    return StatusCode(StatusCodes.Status500InternalServerError, "Somethig is wrong with your cart.");
                 }
 
             }

@@ -38,7 +38,7 @@ namespace WEBSHOP_API.Controllers
         public async Task<ActionResult<IdentityUser>> GetIdentityUserData()
         {
             var claims = HttpContext.User.Claims;
-            string uId = claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
+            var uId = claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
             //Console.WriteLine(uId);
             return await _userContext.Users.FindAsync(uId);
         }
@@ -73,7 +73,7 @@ namespace WEBSHOP_API.Controllers
             try
             {
                 var claims = HttpContext.User.Claims;
-                string uId = claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
+                var uId = claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
                 var result = await _userDataRepository.GetUserDataById(uId);
                 return Ok(_mapper.Map<UserDataDTO>(result));
 
@@ -93,7 +93,7 @@ namespace WEBSHOP_API.Controllers
             try
             {
                 var claims = HttpContext.User.Claims;
-                string uId = claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
+                var uId = claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
                 userDataDTO.UserId = uId;
                 var userData = _mapper.Map<UserData>(userDataDTO);
                 await _userDataRepository.CreateUserData(userData);
@@ -116,7 +116,7 @@ namespace WEBSHOP_API.Controllers
             try
             {
                 var claims = HttpContext.User.Claims;
-                string uId = claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
+                var uId = claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
                 userDataDTO.UserId = uId;
                 var userData = _mapper.Map<UserData>(userDataDTO);
                 await _userDataRepository.UpdateUserData(userData);
@@ -139,7 +139,7 @@ namespace WEBSHOP_API.Controllers
             try
             {
                 var claims = HttpContext.User.Claims;
-                string uId = claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
+                var uId = claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
                 await _userDataRepository.DeleteUserData(uId);
                 return Ok();
             }

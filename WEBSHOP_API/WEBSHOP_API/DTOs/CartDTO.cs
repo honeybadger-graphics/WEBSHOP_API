@@ -5,8 +5,8 @@ namespace WEBSHOP_API.DTOs
     public class CartDTO
     {
         public string CartId { get; set; }
-        public List<int>? ProductsId { get; set; }
-        public List<int>? ProductsCounts { get; set; }
+        public List<int>? ProductIds { get; set; }
+        public List<int>? ProductCount { get; set; }
     }
 
 }
