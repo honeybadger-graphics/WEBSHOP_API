@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore;
 
 namespace WEBSHOP_API.Models
 {
@@ -15,8 +16,9 @@ namespace WEBSHOP_API.Models
        
         public string? UserLastName { get; set; }
        
-        public string? UserAddress { get; set; }
+        public Address? UserAddress { get; set; }
         public string? UserLastPurchaseCategory { get; set; }
 
     }
+   
 }

@@ -11,6 +11,14 @@ namespace WEBSHOP_API.Database
         public DbSet<Product> Products { get; set; }
         public DbSet<Cart> Carts { get; set; }
         public DbSet<Stock> Stocks { get; set; }
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<UserData>(x => {
+                x.ComplexProperty(y => y.UserAddress, y => { y.IsRequired(); });
+                
+            });
+            base.OnModelCreating(modelBuilder);
+        }
     }
-    
+
 }

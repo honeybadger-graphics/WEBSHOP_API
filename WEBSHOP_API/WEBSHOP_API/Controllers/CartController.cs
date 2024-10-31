@@ -63,6 +63,7 @@ namespace WEBSHOP_API.Controllers
                  "Error retrieving data from the database");
             }
         }
+        // make a AddToCart 
         [Authorize]
         [HttpPost]
         public async Task<ActionResult> UpdateCart(CartDTO cartDTO)
