@@ -30,11 +30,12 @@ namespace WEBSHOP_API.Controllers
 
         // GET: api/Product
         [HttpGet]
-        public async Task<ActionResult> GetProducts(int page, int numberOFProductsToDispaly)
+        public async Task<ActionResult> GetProducts(int page, int numberOFProductsToDisplay)
         {
             try
             {
-                return Ok(_mapper.Map<IEnumerable<Product>, List<ProductDTO>>(await _productRepository.GetProducts(page, numberOFProductsToDispaly)));
+                return Ok(_mapper.Map<IEnumerable<Product>, List<ProductDTO>>(
+                    await _productRepository.GetProducts(page, numberOFProductsToDisplay)));
             }
             catch (Exception e)
             {
@@ -45,11 +46,11 @@ namespace WEBSHOP_API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult> GetProductsByCategory(string category, int page, int numberOFProductsToDispaly)
+        public async Task<ActionResult> GetProductsByCategory(string category, int page, int numberOFProductsToDisplay)
         {
             try
             {
-                return Ok(_mapper.Map<IEnumerable<Product>, List<ProductDTO>>(await _productRepository.GetProductsByCategory(category, page, numberOFProductsToDispaly)));
+                return Ok(_mapper.Map<IEnumerable<Product>, List<ProductDTO>>(await _productRepository.GetProductsByCategory(category, page, numberOFProductsToDisplay)));
             }
             catch (Exception e)
             {
@@ -61,11 +62,11 @@ namespace WEBSHOP_API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult> GetProductsIfOnSale(int page, int numberOFProductsToDispaly)
+        public async Task<ActionResult> GetProductsIfOnSale(int page, int numberOFProductsToDisplay)
         {
             try
             {
-                return Ok(_mapper.Map<IEnumerable<Product>, List<ProductDTO>>(await _productRepository.GetProductsIfOnSale(page, numberOFProductsToDispaly)));
+                return Ok(_mapper.Map<IEnumerable<Product>, List<ProductDTO>>(await _productRepository.GetProductsIfOnSale(page, numberOFProductsToDisplay)));
             }
             catch (Exception e)
             {
@@ -77,11 +78,11 @@ namespace WEBSHOP_API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult> GetProductsIfPromoted(int page, int numberOFProductsToDispaly)
+        public async Task<ActionResult> GetProductsIfPromoted(int page, int numberOFProductsToDisplay)
         {
             try
             {
-                return Ok(_mapper.Map<IEnumerable<Product>, List<ProductDTO>>(await _productRepository.GetProductsIfPromoted(page, numberOFProductsToDispaly)));
+                return Ok(_mapper.Map<IEnumerable<Product>, List<ProductDTO>>(await _productRepository.GetProductsIfPromoted(page, numberOFProductsToDisplay)));
             }
             catch (Exception e)
             {

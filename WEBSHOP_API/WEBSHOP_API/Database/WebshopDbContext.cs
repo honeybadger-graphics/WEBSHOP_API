@@ -17,7 +17,9 @@ namespace WEBSHOP_API.Database
                 x.ComplexProperty(y => y.UserAddress, y => { y.IsRequired(); });
                 
             });
+            modelBuilder.Entity<Stock>().HasOne<Product>().WithOne();
             base.OnModelCreating(modelBuilder);
+
         }
     }
 

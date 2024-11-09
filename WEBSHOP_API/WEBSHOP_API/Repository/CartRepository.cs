@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using WEBSHOP_API.Database;
+using WEBSHOP_API.DTOs;
 using WEBSHOP_API.Models;
 using WEBSHOP_API.Repository.RepositoryInterface;
 
@@ -48,6 +49,14 @@ namespace WEBSHOP_API.Repository
             await _context.SaveChangesAsync();
         }
 
+        public async Task AddToCart(string cartId, AddToCartDTO addToCartDTO)
+        {
+            var existingCart = await _context.Carts.FindAsync(cartId);
+            existingCart.ProductIds.Add(addToCartDTO.ProductId);
+            existingCart.ProductCount.Add(addToCartDTO.ProductCount);
+           //_context.Entry(existingCart).CurrentValues.SetValues(cart);
+            await _context.SaveChangesAsync();
+        }
         public async Task UpdateCart(Cart cart)
         {
             var existingCart = await _context.Carts.FindAsync(cart.CartId);
@@ -60,8 +69,8 @@ namespace WEBSHOP_API.Repository
             Cart clearCart = new Cart();
             var existingCart = await _context.Carts.FindAsync(uId);
             clearCart.CartId = existingCart.CartId;
-            clearCart.ProductIds = null;
-            clearCart.ProductCount = null;
+            clearCart.ProductIds = new List<int>();
+            clearCart.ProductCount = new List<int>();
             _context.Entry(existingCart).CurrentValues.SetValues(clearCart);
             _context.SaveChanges();
         }

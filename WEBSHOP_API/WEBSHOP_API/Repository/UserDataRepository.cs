@@ -58,7 +58,7 @@ namespace WEBSHOP_API.Repository
         {
             var existingUser = await _context.UserDatas.FindAsync(uId);
             _context.UserDatas.Remove(existingUser);
-            _context.SaveChanges();
+           await _context.SaveChangesAsync();
 
         }
     }

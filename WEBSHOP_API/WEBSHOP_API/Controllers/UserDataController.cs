@@ -65,7 +65,7 @@ namespace WEBSHOP_API.Controllers
 
         }
         //rewrite
-        // GET: api/Account/5
+        // GET: api/Account
         [Authorize]
         [HttpGet]
         public async Task<ActionResult<UserDataDTO>> GetUserDataInformation()

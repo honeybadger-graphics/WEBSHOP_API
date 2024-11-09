@@ -14,24 +14,24 @@ namespace WEBSHOP_API.Repository
             _context = context;
         }
 
-        public async Task<IEnumerable<Product>> GetProducts(int page, int numberOFProductsToDispaly)
+        public async Task<IEnumerable<Product>> GetProducts(int page, int numberOFProductsToDisplay)
         {
              
-            return await _context.Products.OrderBy(p => p.ProductId).Skip(numberOFProductsToDispaly * (page-1)).Take(numberOFProductsToDispaly).ToListAsync();
+            return await _context.Products.OrderBy(p => p.ProductId).Skip(numberOFProductsToDisplay * (page-1)).Take(numberOFProductsToDisplay).ToListAsync();
         }
-        public async Task<IEnumerable<Product>> GetProductsByCategory(string category, int page, int numberOFProductsToDispaly)
+        public async Task<IEnumerable<Product>> GetProductsByCategory(string category, int page, int numberOFProductsToDisplay)
         {
-            return await _context.Products.Where(p => p.ProductCategory == category).OrderBy(p => p.ProductId).Skip(numberOFProductsToDispaly * (page-1)).Take(numberOFProductsToDispaly).ToListAsync();
-        }
-
-        public async Task<IEnumerable<Product>> GetProductsIfOnSale(int page, int numberOFProductsToDispaly)
-        {
-            return await _context.Products.Where(p => p.IsProductOnSale == true).OrderBy(p => p.ProductId).Skip(numberOFProductsToDispaly * (page-1)).Take(numberOFProductsToDispaly).ToListAsync();
+            return await _context.Products.Where(p => p.ProductCategory == category).OrderBy(p => p.ProductId).Skip(numberOFProductsToDisplay * (page-1)).Take(numberOFProductsToDisplay).ToListAsync();
         }
 
-        public async Task<IEnumerable<Product>> GetProductsIfPromoted(int page, int numberOFProductsToDispaly)
+        public async Task<IEnumerable<Product>> GetProductsIfOnSale(int page, int numberOFProductsToDisplay)
         {
-            return await _context.Products.Where(p => p.IsProductPromoted == true).OrderBy(p => p.ProductId).Skip(numberOFProductsToDispaly * (page-1)).Take(numberOFProductsToDispaly).ToListAsync();
+            return await _context.Products.Where(p => p.IsProductOnSale == true).OrderBy(p => p.ProductId).Skip(numberOFProductsToDisplay * (page-1)).Take(numberOFProductsToDisplay).ToListAsync();
+        }
+
+        public async Task<IEnumerable<Product>> GetProductsIfPromoted(int page, int numberOFProductsToDisplay)
+        {
+            return await _context.Products.Where(p => p.IsProductPromoted == true).OrderBy(p => p.ProductId).Skip(numberOFProductsToDisplay * (page-1)).Take(numberOFProductsToDisplay).ToListAsync();
         }
 
         public async Task<Product> GetProductById(int productId)
@@ -42,11 +42,6 @@ namespace WEBSHOP_API.Repository
         public async Task<Product> GetProductByName(string productName)
         {
             return await _context.Products.FirstAsync(p => p.ProductName == productName); ;
-        }
-        // possibly not needed
-        public async Task<Product> GetProductByProduct(Product product)
-        {
-            return await _context.Products.FirstAsync(p => p.ProductName == product.ProductName);
         }
         public async Task<Product> AddProduct(Product product)
         {

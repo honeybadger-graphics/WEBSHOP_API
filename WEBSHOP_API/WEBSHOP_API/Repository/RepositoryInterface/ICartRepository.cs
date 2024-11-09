@@ -6,6 +6,7 @@ namespace WEBSHOP_API.Repository.RepositoryInterface
     {
         Task<Cart> CartDataById(string uId);
         Task CreateCart(Cart cart);
+        Task AddToCart(Cart cart);
         Task UpdateCart(Cart cart);
         Task ClearCart(string uId);
         Task DeleteCart(string uId);

@@ -5,10 +5,10 @@ namespace WEBSHOP_API.Repository.RepositoryInterface
 
     public interface IProductRepository : IDisposable
     {
-        Task<IEnumerable<Product>> GetProducts(int page, int numberOFProductsToDispaly);
-        Task<IEnumerable<Product>> GetProductsByCategory(string category, int page, int numberOFProductsToDispaly);
-        Task<IEnumerable<Product>> GetProductsIfOnSale(int page, int numberOFProductsToDispaly);
-        Task<IEnumerable<Product>> GetProductsIfPromoted(int page, int numberOFProductsToDispaly);
+        Task<IEnumerable<Product>> GetProducts(int page, int numberOFProductsToDisplay);
+        Task<IEnumerable<Product>> GetProductsByCategory(string category, int page, int numberOFProductsToDisplay);
+        Task<IEnumerable<Product>> GetProductsIfOnSale(int page, int numberOFProductsToDisplay);
+        Task<IEnumerable<Product>> GetProductsIfPromoted(int page, int numberOFProductsToDisplay);
         Task<IEnumerable<Product>> GetProductsReccomendation(string category);
         Task<Product> GetProductById(int pruductId);
         Task<Product> GetProductByName(string productName);

@@ -66,6 +66,25 @@ namespace WEBSHOP_API.Controllers
         // make a AddToCart 
         [Authorize]
         [HttpPost]
+        public async Task<ActionResult> AddToCart(CartDTO cartDTO)
+        {
+            try
+            {
+                var claims = HttpContext.User.Claims;
+                var uId = claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
+                cartDTO.CartId = uId;
+                await _cartRepository.AddToCart(_mapper.Map<Cart>(cartDTO));
+                return StatusCode(StatusCodes.Status200OK, "Added to cart!");
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Something went wrong: {error}", e.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                 "Error retrieving data from the database");
+            }
+        }
+        [Authorize]
+        [HttpPost]
         public async Task<ActionResult> UpdateCart(CartDTO cartDTO)
         {
             try
