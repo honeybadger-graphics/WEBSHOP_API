@@ -12,7 +12,6 @@ namespace WEBSHOP_API.Repository.RepositoryInterface
         Task<IEnumerable<Product>> GetProductsReccomendation(string category);
         Task<Product> GetProductById(int pruductId);
         Task<Product> GetProductByName(string productName);
-        Task<Product> GetProductByProduct(Product product);
         Task<Product> AddProduct(Product product);
         Task CreateProductAndStock(Product product);
         Task UpdateProduct(Product productToUpdate);
