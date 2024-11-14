@@ -104,7 +104,7 @@ namespace WEBSHOP_API.Repository
             /*This should be something else based on many things. It just randomly skips products based on the number of products in table then takes next 5.
             This should use ML and training data to calculate which I dont have the time to fully implement for now.... maybe later?*/
             int numberOfProductToRecommend = 5;
-            int count = await GetProductCount();
+            int count = await GetProductCount(category);
             int randomCeiling = 0;
             if (count > numberOfProductToRecommend)
             {
@@ -119,9 +119,9 @@ namespace WEBSHOP_API.Repository
             return await _context.Products.Where(p => p.ProductCategory == category).OrderBy(p => p.ProductId).Skip(randomSkip).Take(numberOfProductToRecommend).ToListAsync();
         }
 
-        public async Task<int> GetProductCount()
+        public async Task<int> GetProductCount(string category)
         {
-            return await _context.Products.CountAsync();
+            return await _context.Products.Where(p=>p.ProductCategory == category).CountAsync();
         }
 
         public async Task<string> GetProductCategoryById(int productId)

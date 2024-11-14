@@ -66,14 +66,13 @@ namespace WEBSHOP_API.Controllers
         // make a AddToCart 
         [Authorize]
         [HttpPost]
-        public async Task<ActionResult> AddToCart(CartDTO cartDTO)
+        public async Task<ActionResult> AddToCart(AddToCartDTO addToCartDTO)
         {
             try
             {
                 var claims = HttpContext.User.Claims;
                 var uId = claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
-                cartDTO.CartId = uId;
-                await _cartRepository.AddToCart(_mapper.Map<Cart>(cartDTO));
+                await _cartRepository.AddToCart(uId,addToCartDTO);
                 return StatusCode(StatusCodes.Status200OK, "Added to cart!");
             }
             catch (Exception e)
