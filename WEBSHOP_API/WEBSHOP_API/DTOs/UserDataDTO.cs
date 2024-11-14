@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
+using WEBSHOP_API.Models;
 namespace WEBSHOP_API.DTOs
 {
     public class UserDataDTO
@@ -14,7 +15,7 @@ namespace WEBSHOP_API.DTOs
        
         public string? UserLastName { get; set; }
        
-        public string? UserAddress { get; set; }
+        public Address UserAddress { get; set; }
         public string? UserLastPurchaseCategory { get; set; }
     }
 }

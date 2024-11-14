@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WEBSHOP_API.Database;
 
@@ -10,9 +11,11 @@ using WEBSHOP_API.Database;
 namespace WEBSHOP_API.Migrations.WebshopDb
 {
     [DbContext(typeof(WebshopDbContext))]
-    partial class WebshopDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241031130349_ComplexAddress")]
+    partial class ComplexAddress
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.10");
@@ -85,9 +88,6 @@ namespace WEBSHOP_API.Migrations.WebshopDb
 
                     b.HasKey("StockId");
 
-                    b.HasIndex("ProductId")
-                        .IsUnique();
-
                     b.ToTable("Stocks");
                 });
 
@@ -128,15 +128,6 @@ namespace WEBSHOP_API.Migrations.WebshopDb
                     b.HasKey("UserId");
 
                     b.ToTable("UserDatas");
-                });
-
-            modelBuilder.Entity("WEBSHOP_API.Models.Stock", b =>
-                {
-                    b.HasOne("WEBSHOP_API.Models.Product", null)
-                        .WithOne()
-                        .HasForeignKey("WEBSHOP_API.Models.Stock", "ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

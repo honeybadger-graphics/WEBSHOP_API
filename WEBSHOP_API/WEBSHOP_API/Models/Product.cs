@@ -13,10 +13,10 @@
       
         public int ProductBasePrice { get; set; }
 
-        public bool IsProductPromoted { get; set; }
+        public bool IsProductPromoted { get; set; } = false;
 
-        public bool IsProductOnSale { get; set; }
-      
+        public bool IsProductOnSale { get; set; } = false;
+
     }
     
 }

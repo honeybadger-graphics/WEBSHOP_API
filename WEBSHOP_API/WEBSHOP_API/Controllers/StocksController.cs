@@ -36,7 +36,7 @@ namespace WEBSHOP_API.Controllers
                 "Error retrieving data from the database");
             }
         }
-        [HttpGet]
+        [HttpGet("{stockToCompereTo:int}")]
         public async Task<ActionResult> GetLowStocks(int stockToCompereTo)
         {
             try
@@ -51,18 +51,18 @@ namespace WEBSHOP_API.Controllers
             }
         }
         [HttpPost]
-        public async Task<ActionResult> UpdateStock(int productId, int stockChange)
+        public async Task<ActionResult> UpdateStock(StockUpdateDTO stockUpdateDTO)
         {
             try
             {
-                await _stockRepository.UpdateStock(productId, stockChange);
-                _logger.LogInformation("Updated product stock on productId {0}", productId);
+                await _stockRepository.UpdateStock(stockUpdateDTO.ProductId, stockUpdateDTO.ProductStocks);
+                _logger.LogInformation("Updated product stock on productId {0}", stockUpdateDTO.ProductId);
                 return StatusCode(StatusCodes.Status200OK, "Product stock changed");
 
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Updating stocks went wrong on productId {0}: {error}",productId, e.Message);
+                _logger.LogError(e, "Updating stocks went wrong on productId {0}: {error}",stockUpdateDTO.ProductId, e.Message);
                 return StatusCode(StatusCodes.Status500InternalServerError,
                 "Error retrieving data from the database");
             }

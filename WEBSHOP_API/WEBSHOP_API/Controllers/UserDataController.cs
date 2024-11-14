@@ -46,18 +46,18 @@ namespace WEBSHOP_API.Controllers
         // POST: api/Account
         [Authorize (Roles = "Admin")]
         [HttpPost]
-        public async Task<ActionResult> AddUserToAdmins(string userEmail)
+        public async Task<ActionResult> AddUserToAdmins(AdminDTO adminDTO)
         {
             try
             {
-                var user = await _userManager.FindByEmailAsync(userEmail);
+                var user = await _userManager.FindByEmailAsync(adminDTO.userEmail);
                 await _userManager.AddToRoleAsync(user, "Admin");
-                _logger.LogInformation("Adding {email} to admins.", userEmail);
+                _logger.LogInformation("Adding {email} to admins.", adminDTO.userEmail);
                 return StatusCode(StatusCodes.Status200OK, "Succesfully added a new admin");
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Adding {email} member to admins went wrong: {error}",userEmail, e.Message);
+                _logger.LogError(e, "Adding {email} member to admins went wrong: {error}",adminDTO.userEmail, e.Message);
                 return StatusCode(StatusCodes.Status500InternalServerError,
                     "Error adding to admins record");
             }
@@ -65,7 +65,7 @@ namespace WEBSHOP_API.Controllers
 
         }
         //rewrite
-        // GET: api/Account/5
+        // GET: api/Account
         [Authorize]
         [HttpGet]
         public async Task<ActionResult<UserDataDTO>> GetUserDataInformation()
@@ -88,7 +88,7 @@ namespace WEBSHOP_API.Controllers
         }
         [Authorize]
         [HttpPost]
-        public async Task<ActionResult<UserDataDTO>> CreateUserData(UserDataDTO userDataDTO)
+        public async Task<ActionResult> CreateUserData(UserDataDTO userDataDTO)
         {
             try
             {
@@ -111,7 +111,7 @@ namespace WEBSHOP_API.Controllers
 
         [Authorize]
         [HttpPost]
-        public async Task<ActionResult<UserDataDTO>> UpdateUserData(UserDataDTO userDataDTO)
+        public async Task<ActionResult> UpdateUserData(UserDataDTO userDataDTO)
         {
             try
             {
