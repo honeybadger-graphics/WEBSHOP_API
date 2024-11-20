@@ -72,7 +72,8 @@ namespace WEBSHOP_API.Controllers
                     string productCategory = await _productRepository.GetProductCategoryById(cart.ProductIds[random]);
                     userData.UserLastPurchaseCategory = productCategory;
                     await _userDataRepository.UpdateUserData(userData);
-                    return NoContent();
+                    await _cartRepository.ClearCart(uId);
+                    return Ok();
                 }
                 else {
                     return StatusCode(StatusCodes.Status500InternalServerError, "Somethig is wrong with your cart.");
